@@ -6,6 +6,10 @@
 ## SavedVariables: RuilhennDB
 ## IconTexture: Interface\AddOns\Ruilhenn\icon.tga
 
-Locales.lua
-MacroTemplates.lua
+Init.lua
+l10n/enUS.lua
+l10n/frFR.lua
+macros/druid.lua
+macros/demonHunter.lua
+macros/deathKnight.lua
 Ruilhenn.lua

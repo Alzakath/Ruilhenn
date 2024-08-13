@@ -1,7 +1,5 @@
 Ruilhenn = CreateFrame("Frame", "RuilhennFrame")
 
-local NUM_CHARACTER_MACROS = 18
-local FIRST_CHARACTER_MACRO_INDEX = 121
 local locale = GetLocale()
 local L = Ruilhenn_Locale[locale] or Ruilhenn_Locale["enUS"] -- English as default locale
 
