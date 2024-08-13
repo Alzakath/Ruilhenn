@@ -1,5 +1,6 @@
 Ruilhenn_Locale["frFR"] = {
     ["LOADED"] = "Version %s chargée",
+    ["STARTED"] = "/ruil init pour commencer",
     ["CLASS_DETECTED"] = "Classe du joueur détectée : %s",
     ["MACRO_CREATED"] = "Macro %s créée (spécifique au personnage).",
     ["MACRO_UPDATED"] = "Macro %s mise à jour.",

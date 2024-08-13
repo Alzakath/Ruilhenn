@@ -1,7 +1,51 @@
 Ruilhenn = CreateFrame("Frame", "RuilhennFrame")
+Ruilhenn.debugMode = false
+Ruilhenn.command = {
+    ["debug"] = "ToggleDebugMode",
+    ["status"] = "DebugModeStatus",
+    ["init"] = "InitMacros",
+}
 
 local locale = GetLocale()
-local L = Ruilhenn_Locale[locale] or Ruilhenn_Locale["enUS"] -- English as default locale
+local L = setmetatable(Ruilhenn_Locale[locale] or {}, {__index = Ruilhenn_Locale["enUS"]})
+
+function Ruilhenn:Command(msg)
+    local funcName = self.command[msg:lower()]
+    local func = self[funcName]
+    if type(func) == "function" then
+        func(self)
+    else
+        self:CommandUsage()
+    end
+end
+
+function Ruilhenn:CommandUsage()
+    self:Message("Usage:")
+    self:Message("/ruil debug - Toggle debug mode.")
+    self:Message("/ruil status - Show debug mode status.")
+    self:Message("/ruil init - Create or Update class specific macros.")
+end
+
+function Ruilhenn:ToggleDebugMode()
+    self.debugMode = not self.debugMode
+    if self.debugMode then
+        self:Message("|cff00ff00Ruilhenn:|r Debug mode |cff00ff00activated|r")
+    else
+        self:Message("|cff00ff00Ruilhenn:|r Debug mode |cffff0000deactivated|r")
+    end
+end
+
+function Ruilhenn:DebugModeStatus()
+    if self.debugMode then
+        self:Message("|cff00ff00Ruilhenn:|r Debug mode is currently |cff00ff00ON|r")
+    else
+        self:Message("|cff00ff00Ruilhenn:|r Debug mode is currently |cffff0000OFF|r")
+    end
+end
+
+function Ruilhenn:Message(message)
+    print(message)
+end
 
 function Ruilhenn:Log(message)
     print("|cff00ff00Ruilhenn:|r " .. message)
@@ -17,7 +61,8 @@ end
 
 function Ruilhenn:PrintGreetings()
     local version = GetAddOnMetadata("Ruilhenn", "Version")
-    Ruilhenn:Log(L["LOADED"]:format(version))
+    self:Log(L["LOADED"]:format(version))
+    self:Log(L["STARTED"])
 end
 
 function Ruilhenn:EnsureMacroExists(macro)
@@ -26,17 +71,17 @@ function Ruilhenn:EnsureMacroExists(macro)
     if macroIndex == 0 then
         -- Create a new macro if it doesn't exist
         CreateMacro(macro.name, macro.icon, macro.body, true)
-        Ruilhenn:Log(L["MACRO_CREATED"]:format(macro.name))
+        self:Log(L["MACRO_CREATED"]:format(macro.name))
     else
         -- Update existing macro
         EditMacro(macroIndex, macro.name, macro.icon, macro.body)
-        Ruilhenn:Log(L["MACRO_UPDATED"]:format(macro.name))
+        self:Log(L["MACRO_UPDATED"]:format(macro.name))
     end
 end
 
 function Ruilhenn:ProcessMacros(classMacros)
     for _, macro in ipairs(classMacros) do
-        Ruilhenn:EnsureMacroExists(macro)
+        self:EnsureMacroExists(macro)
         coroutine.yield()
     end
 end
@@ -48,7 +93,7 @@ function Ruilhenn:StartCoroutine(coroutineFunc)
         if coroutine.status(co) ~= "dead" then
             local success, err = coroutine.resume(co)
             if not success then
-                Ruilhenn:Error(L["ERROR_COROUTINE"]:format(err))
+                self:Error(L["ERROR_COROUTINE"]:format(err))
             end
         else
             self:SetScript("OnUpdate", nil)
@@ -80,30 +125,30 @@ function Ruilhenn:OnEvent(event, ...)
     self[event](self, event, ...)
 end
 
-function Ruilhenn:SPELLS_CHANGED(event)
-end
-
 function Ruilhenn:ADDON_LOADED(event, addon)
     if addon == "Ruilhenn" then
-        Ruilhenn:PrintGreetings()
+        self:PrintGreetings()
     end
 end
 
-function Ruilhenn:PLAYER_ENTERING_WORLD(event, isLogin, isReload)
-    if isLogin or isReload then
+function Ruilhenn:InitMacros()
     local _, playerClass = UnitClass("player")
-    Ruilhenn:Log(L["CLASS_DETECTED"]:format(playerClass))
+    self:Log(L["CLASS_DETECTED"]:format(playerClass))
 
     if MacroTemplates[playerClass] then
-        Ruilhenn:CreateClassMacros(MacroTemplates[playerClass])
+        self:CreateClassMacros(MacroTemplates[playerClass])
     else
-        Ruilhenn:Warning(L["NO_MACROS_DEFINED"]:format(playerClass))
-        end
+        self:Warning(L["NO_MACROS_DEFINED"]:format(playerClass))
     end
 end
 
-Ruilhenn:RegisterEvent("SPELLS_CHANGED")
-Ruilhenn:RegisterEvent("ADDON_LOADED")
-Ruilhenn:RegisterEvent("PLAYER_ENTERING_WORLD")
 
+Ruilhenn:RegisterEvent("ADDON_LOADED")
 Ruilhenn:SetScript("OnEvent", Ruilhenn.OnEvent)
+
+SLASH_RUILHENN1 = "/ruil"
+SLASH_RUILHENN2 = "/ruilhenn"
+
+SlashCmdList["RUILHENN"] = function(msg)
+    Ruilhenn:Command(msg)
+end
