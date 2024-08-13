@@ -1,0 +1,11 @@
+## Interface: 110000, 110002
+## Version: 0.0.1
+## Title: Ruilhenn
+## Notes: A simple addon to create class utility macros.
+## Author: Alzakath
+## SavedVariables: RuilhennDB
+## IconTexture: Interface\AddOns\Ruilhenn\icon.tga
+
+Locales.lua
+MacroTemplates.lua
+Ruilhenn.lua
