@@ -126,9 +126,10 @@ function Ruilhenn:OnEvent(event, ...)
 end
 
 function Ruilhenn:ADDON_LOADED(event, addon)
-    if addon == "Ruilhenn" then
-        self:PrintGreetings()
-    end
+    if addon ~= "Ruilhenn" then return end
+
+    self:PrintGreetings()
+
 end
 
 function Ruilhenn:InitMacros()
