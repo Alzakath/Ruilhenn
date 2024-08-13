@@ -15,8 +15,9 @@ function Ruilhenn:Warning(message)
     print("|cffffa500Ruilhenn Warning:|r " .. message)
 end
 
-function Ruilhenn:PrintHelloWorld()
-    Ruilhenn:Log(L["LOADED"])
+function Ruilhenn:PrintGreetings()
+    local version = GetAddOnMetadata("Ruilhenn", "Version")
+    Ruilhenn:Log(L["LOADED"]:format(version))
 end
 
 function Ruilhenn:EnsureMacroExists(macro)
@@ -84,11 +85,12 @@ end
 
 function Ruilhenn:ADDON_LOADED(event, addon)
     if addon == "Ruilhenn" then
-        Ruilhenn:PrintHelloWorld()
+        Ruilhenn:PrintGreetings()
     end
 end
 
-function Ruilhenn:PLAYER_ENTERING_WORLD(event)
+function Ruilhenn:PLAYER_ENTERING_WORLD(event, isLogin, isReload)
+    if isLogin or isReload then
     local _, playerClass = UnitClass("player")
     Ruilhenn:Log(L["CLASS_DETECTED"]:format(playerClass))
 
@@ -96,6 +98,7 @@ function Ruilhenn:PLAYER_ENTERING_WORLD(event)
         Ruilhenn:CreateClassMacros(MacroTemplates[playerClass])
     else
         Ruilhenn:Warning(L["NO_MACROS_DEFINED"]:format(playerClass))
+        end
     end
 end
 
@@ -104,4 +107,3 @@ Ruilhenn:RegisterEvent("ADDON_LOADED")
 Ruilhenn:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 Ruilhenn:SetScript("OnEvent", Ruilhenn.OnEvent)
-
