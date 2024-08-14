@@ -82,7 +82,7 @@ function Ruilhenn:Warning(message)
 end
 
 function Ruilhenn:PrintGreetings()
-    local version = '0.0.2'
+    local version = '0.0.3'
     self:Log(L["LOADED"]:format(version))
     self:Log(L["STARTED"])
 end
