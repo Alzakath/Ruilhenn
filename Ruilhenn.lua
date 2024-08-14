@@ -1,3 +1,19 @@
+local CreateFrame = CreateFrame
+local GetMacroInfo = GetMacroInfo
+local EditMacro = EditMacro
+local CreateMacro = CreateMacro
+local SlashCmdList = SlashCmdList
+local GetLocale = GetLocale
+local UnitClass = UnitClass
+local GetFramerate = GetFramerate
+
+local Ruilhenn_Locale = Ruilhenn_Locale
+local MacroTemplates = MacroTemplates
+
+local locale = GetLocale()
+local L = setmetatable(Ruilhenn_Locale[locale] or {}, { __index = Ruilhenn_Locale["enUS"] })
+local taskFrame = CreateFrame("Frame", "RuilhennTaskFrame")
+
 Ruilhenn = CreateFrame("Frame", "RuilhennFrame")
 Ruilhenn.debugMode = false
 Ruilhenn.command = {
@@ -6,14 +22,15 @@ Ruilhenn.command = {
     ["init"] = "InitMacros",
 }
 
-local locale = GetLocale()
-local L = setmetatable(Ruilhenn_Locale[locale] or {}, {__index = Ruilhenn_Locale["enUS"]})
 
 function Ruilhenn:Command(msg)
     local funcName = self.command[msg:lower()]
     local func = self[funcName]
     if type(func) == "function" then
-        func(self)
+        local success, err = pcall(func, self)
+        if not success then
+            self:Debug("Command execution error: " .. err)
+        end
     else
         self:CommandUsage()
     end
@@ -47,6 +64,12 @@ function Ruilhenn:Message(message)
     print(message)
 end
 
+function Ruilhenn:Debug(message)
+    if self.debugMode then
+        print("|cfff488f0Ruilhenn:|r " .. message)
+    end
+end
+
 function Ruilhenn:Log(message)
     print("|cff00ff00Ruilhenn:|r " .. message)
 end
@@ -60,7 +83,7 @@ function Ruilhenn:Warning(message)
 end
 
 function Ruilhenn:PrintGreetings()
-    local version = GetAddOnMetadata("Ruilhenn", "Version")
+    local version = '0.0.2'
     self:Log(L["LOADED"]:format(version))
     self:Log(L["STARTED"])
 end
@@ -69,45 +92,59 @@ function Ruilhenn:EnsureMacroExists(macro)
     local macroIndex = Ruilhenn:FindCharacterMacro(macro.name)
 
     if macroIndex == 0 then
-        -- Create a new macro if it doesn't exist
         CreateMacro(macro.name, macro.icon, macro.body, true)
-        self:Log(L["MACRO_CREATED"]:format(macro.name))
+        self:Debug(L["MACRO_CREATED"]:format(macro.name))
     else
-        -- Update existing macro
         EditMacro(macroIndex, macro.name, macro.icon, macro.body)
-        self:Log(L["MACRO_UPDATED"]:format(macro.name))
+        self:Debug(L["MACRO_UPDATED"]:format(macro.name))
     end
 end
 
-function Ruilhenn:ProcessMacros(classMacros)
-    for _, macro in ipairs(classMacros) do
-        self:EnsureMacroExists(macro)
-        coroutine.yield()
+function Ruilhenn:CreateMacrosQueue(initialTasksPerFrame)
+    local taskQueue = { tasks = {}, tasksPerFrame = initialTasksPerFrame or 5}
+
+    function taskQueue:AddTask(task)
+        table.insert(self.tasks, task)
     end
-end
 
-function Ruilhenn:StartCoroutine(coroutineFunc)
-    local co = coroutine.create(coroutineFunc)
-
-    local function OnUpdate(self, elapsed)
-        if coroutine.status(co) ~= "dead" then
-            local success, err = coroutine.resume(co)
+    function taskQueue:Process()
+        local tasksProcessed = 0
+        while tasksProcessed < self.tasksPerFrame and #self.tasks > 0 do
+            local task = table.remove(self.tasks, 1)
+            local success, err = pcall(task)
             if not success then
-                self:Error(L["ERROR_COROUTINE"]:format(err))
+                Ruilhenn:Error("Task error: " .. err)
             end
-        else
-            self:SetScript("OnUpdate", nil)
+            tasksProcessed = tasksProcessed + 1
+        end
+        if #self.tasks == 0 then
+            taskFrame:SetScript("OnUpdate", nil)
+            Ruilhenn:Debug("All tasks processed.")
         end
     end
 
-    local frame = CreateFrame("Frame")
-    frame:SetScript("OnUpdate", OnUpdate)
+    function taskQueue:Run()
+        if #self.tasks > 0 then
+            taskFrame:SetScript("OnUpdate", function()
+                local fps = GetFramerate()
+                self.tasksPerFrame = math.max(1, math.floor(fps / 10))
+                self:Process()
+            end)
+        end
+    end
+
+    return taskQueue
 end
 
 function Ruilhenn:CreateClassMacros(classMacros)
-    self:StartCoroutine(function()
-        self:ProcessMacros(classMacros)
-    end)
+    local taskQueue = self:CreateMacrosQueue(5)
+
+    for _, macro in ipairs(classMacros) do
+        taskQueue:AddTask(function()
+            self:EnsureMacroExists(macro)
+        end)
+    end
+    taskQueue:Run()
 end
 
 function Ruilhenn:FindCharacterMacro(macroName)
@@ -129,7 +166,6 @@ function Ruilhenn:ADDON_LOADED(event, addon)
     if addon ~= "Ruilhenn" then return end
 
     self:PrintGreetings()
-
 end
 
 function Ruilhenn:InitMacros()
@@ -142,7 +178,6 @@ function Ruilhenn:InitMacros()
         self:Warning(L["NO_MACROS_DEFINED"]:format(playerClass))
     end
 end
-
 
 Ruilhenn:RegisterEvent("ADDON_LOADED")
 Ruilhenn:SetScript("OnEvent", Ruilhenn.OnEvent)
