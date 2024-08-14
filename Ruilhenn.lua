@@ -7,11 +7,11 @@ local GetLocale = GetLocale
 local UnitClass = UnitClass
 local GetFramerate = GetFramerate
 
-local Ruilhenn_Locale = Ruilhenn_Locale
+local RuilhennLocale = RuilhennLocale
 local MacroTemplates = MacroTemplates
 
 local locale = GetLocale()
-local L = setmetatable(Ruilhenn_Locale[locale] or {}, { __index = Ruilhenn_Locale["enUS"] })
+local L = setmetatable(RuilhennLocale[locale] or {}, { __index = RuilhennLocale["enUS"] })
 local taskFrame = CreateFrame("Frame", "RuilhennTaskFrame")
 
 Ruilhenn = CreateFrame("Frame", "RuilhennFrame")
@@ -21,7 +21,6 @@ Ruilhenn.command = {
     ["status"] = "DebugModeStatus",
     ["init"] = "InitMacros",
 }
-
 
 function Ruilhenn:Command(msg)
     local funcName = self.command[msg:lower()]
@@ -100,14 +99,14 @@ function Ruilhenn:EnsureMacroExists(macro)
     end
 end
 
-function Ruilhenn:CreateMacrosQueue(initialTasksPerFrame)
-    local taskQueue = { tasks = {}, tasksPerFrame = initialTasksPerFrame or 5}
+function Ruilhenn:CreateTaskQueue(initialTasksPerFrame)
+    local queue = { tasks = {}, tasksPerFrame = initialTasksPerFrame or 5}
 
-    function taskQueue:AddTask(task)
+    function queue:AddTask(task)
         table.insert(self.tasks, task)
     end
 
-    function taskQueue:Process()
+    function queue:Process()
         local tasksProcessed = 0
         while tasksProcessed < self.tasksPerFrame and #self.tasks > 0 do
             local task = table.remove(self.tasks, 1)
@@ -123,7 +122,7 @@ function Ruilhenn:CreateMacrosQueue(initialTasksPerFrame)
         end
     end
 
-    function taskQueue:Run()
+    function queue:Run()
         if #self.tasks > 0 then
             taskFrame:SetScript("OnUpdate", function()
                 local fps = GetFramerate()
@@ -133,11 +132,11 @@ function Ruilhenn:CreateMacrosQueue(initialTasksPerFrame)
         end
     end
 
-    return taskQueue
+    return queue
 end
 
 function Ruilhenn:CreateClassMacros(classMacros)
-    local taskQueue = self:CreateMacrosQueue(5)
+    local taskQueue = self:CreateTaskQueue(5)
 
     for _, macro in ipairs(classMacros) do
         taskQueue:AddTask(function()

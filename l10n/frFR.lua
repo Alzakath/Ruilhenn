@@ -1,4 +1,4 @@
-Ruilhenn_Locale["frFR"] = {
+RuilhennLocale["frFR"] = {
     ["LOADED"] = "Version %s chargée",
     ["STARTED"] = "/ruil init pour commencer",
     ["CLASS_DETECTED"] = "Classe du joueur détectée : %s",
