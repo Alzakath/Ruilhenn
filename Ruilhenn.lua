@@ -42,25 +42,25 @@ end
 
 function Ruilhenn:CommandUsage()
     self:Message("Usage:")
-    self:Message("/ruil debug - Toggle debug mode.")
-    self:Message("/ruil status - Show debug mode status.")
-    self:Message("/ruil init - Create or Update class specific macros.")
+    self:Message("/ruil debug - " .. L["COMMAND_DEBUG_HELP"])
+    self:Message("/ruil status - " .. L["COMMAND_STATUS_HELP"])
+    self:Message("/ruil init - " .. L["COMMAND_INIT_HELP"])
 end
 
 function Ruilhenn:ToggleDebugMode()
     self.debugMode = not self.debugMode
     if self.debugMode then
-        self:Message("|cff00ff00Ruilhenn:|r Debug mode |cff00ff00activated|r")
+        self:Message("|cff00ff00Ruilhenn:|r " .. L["DEBUG_ACTIVATED"])
     else
-        self:Message("|cff00ff00Ruilhenn:|r Debug mode |cffff0000deactivated|r")
+        self:Message("|cff00ff00Ruilhenn:|r " .. L["DEBUG_DEACTIVATED"])
     end
 end
 
 function Ruilhenn:DebugModeStatus()
     if self.debugMode then
-        self:Message("|cff00ff00Ruilhenn:|r Debug mode is currently |cff00ff00ON|r")
+        self:Message("|cff00ff00Ruilhenn:|r " .. L["DEBUG_ACTIVATED"])
     else
-        self:Message("|cff00ff00Ruilhenn:|r Debug mode is currently |cffff0000OFF|r")
+        self:Message("|cff00ff00Ruilhenn:|r " .. L["DEBUG_DEACTIVATED"])
     end
 end
 
@@ -133,13 +133,13 @@ function Ruilhenn:CreateTaskQueue(initialTasksPerFrame)
             local task = table.remove(self.tasks, 1)
             local success, err = pcall(task)
             if not success then
-                Ruilhenn:Error("Task error: " .. err)
+                Ruilhenn:Error(L["TASKS_ERROR"]:format(err))
             end
             tasksProcessed = tasksProcessed + 1
         end
         if #self.tasks == 0 then
             taskFrame:SetScript("OnUpdate", nil)
-            Ruilhenn:Debug("All tasks processed.")
+            Ruilhenn:Debug(L["TASKS_PROCESSED"])
         end
     end
 
