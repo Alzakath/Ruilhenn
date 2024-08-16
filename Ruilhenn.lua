@@ -1,3 +1,5 @@
+RuilhennDB = RuilhennDB or {}
+
 local CreateFrame = CreateFrame
 local GetMacroInfo = GetMacroInfo
 local EditMacro = EditMacro
@@ -36,9 +38,9 @@ function Ruilhenn:Command(msg)
         return
     end
 
-        local success, err = pcall(func, self)
-        if not success then
-            self:Debug("Command execution error: " .. err)
+    local success, err = pcall(func, self)
+    if not success then
+        self:Debug("Command execution error: " .. err)
     end
 end
 
@@ -88,6 +90,19 @@ end
 
 function Ruilhenn:Warning(message)
     print("|cffffa500Ruilhenn Warning:|r " .. message)
+end
+
+function Ruilhenn:DumpTable(value)
+    if type(value) == 'table' then
+        local s = '{ '
+        for k, v in pairs(value) do
+            if type(k) ~= 'number' then k = '"' .. k .. '"' end
+            s = s .. '[' .. k .. '] = ' .. self:DumpTable(v) .. ','
+        end
+        return s .. '} '
+    else
+        return tostring(value)
+    end
 end
 
 function Ruilhenn:PrintGreetings()
