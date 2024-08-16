@@ -54,6 +54,8 @@ function Ruilhenn:ToggleDebugMode()
     else
         self:Message("|cff00ff00Ruilhenn:|r " .. L["DEBUG_DEACTIVATED"])
     end
+
+    self:SaveSetting("debugMode", self.debugMode)
 end
 
 function Ruilhenn:DebugModeStatus()
@@ -182,10 +184,32 @@ function Ruilhenn:OnEvent(event, ...)
     self[event](self, event, ...)
 end
 
+function Ruilhenn:LoadSavedVariables()
+    local playerName = UnitName("player")
+    RuilhennDB.playerSettings = RuilhennDB.playerSettings or {}
+    local settings = RuilhennDB.playerSettings[playerName] or {}
+
+    self.debugMode = settings.debugMode or false
+
+    if settings then
+        self:Debug(L["SETTINGS_FOUND"]:format(playerName))
+    else
+        self:Debug(L["SETTINGS_NOT_FOUND"]:format(playerName))
+    end
+end
+
+function Ruilhenn:SaveSetting(key, value)
+    local playerName = UnitName("player")
+    RuilhennDB.playerSettings[playerName] = RuilhennDB.playerSettings[playerName] or {}
+
+    RuilhennDB.playerSettings[playerName][key] = value
+end
+
 function Ruilhenn:ADDON_LOADED(event, addon)
     if addon ~= "Ruilhenn" then return end
 
     self:PrintGreetings()
+    self:LoadSavedVariables()
 end
 
 function Ruilhenn:InitMacros()
