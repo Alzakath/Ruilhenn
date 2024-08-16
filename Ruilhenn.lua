@@ -9,6 +9,7 @@ local GetFramerate = GetFramerate
 local UnitName = UnitName
 local GetSpellName = C_Spell.GetSpellName
 local GetItemInfo = C_Item.GetItemInfo
+local debugprofilestop = debugprofilestop
 
 local RuilhennLocale = RuilhennLocale
 local MacroTemplates = MacroTemplates
@@ -16,6 +17,7 @@ local MacroTemplates = MacroTemplates
 local locale = GetLocale()
 local L = setmetatable(RuilhennLocale[locale] or {}, { __index = RuilhennLocale["enUS"] })
 local taskFrame = CreateFrame("Frame", "RuilhennTaskFrame")
+local startTime = START_TIME
 
 Ruilhenn = CreateFrame("Frame", "RuilhennFrame")
 Ruilhenn.debugMode = false
@@ -210,6 +212,8 @@ function Ruilhenn:ADDON_LOADED(event, addon)
 
     self:PrintGreetings()
     self:LoadSavedVariables()
+    local endTime = debugprofilestop()
+    self:Debug(L["LOADED_TIMER"]:format(endTime - startTime))
 end
 
 function Ruilhenn:InitMacros()
