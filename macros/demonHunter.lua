@@ -1,47 +1,49 @@
-MacroTemplates["DEMONHUNTER"] = {
-    { 
-        name = "crowd-affix", 
-        icon = "INV_Misc_QuestionMark", 
-        body = [[
-#showtooltip Imprison
-/cast [target=mouseover,exists,harm] Imprison
-        ]] 
-    },
+MacroTemplates["DEMONHUNTER"] = function()
+    return {
+        {
+            name = "crowd-affix",
+            icon = "INV_Misc_QuestionMark",
+            body = [[
+#showtooltip %spell:217832%
+/cast [target=mouseover,exists,harm] %spell:217832%
+        ]]
+        },
 
-    { 
-        name = "metamorphosis", 
-        icon = "INV_Misc_QuestionMark", 
-        body = [[
-#showtooltip Metamorphosis
-/use Ashes of the Embersoul
-/cast [@player,nochanneling] Metamorphosis
-        ]] 
-    },
+        {
+            name = "metamorphosis",
+            icon = "INV_Misc_QuestionMark",
+            body = [[
+#showtooltip %spell:191427%
+/use 13
+/cast [@player,nochanneling] %spell:191427%
+        ]]
+        },
 
-    { 
-        name = "sigil-of-misery", 
-        icon = "INV_Misc_QuestionMark", 
-        body = [[
+        {
+            name = "sigil-of-misery",
+            icon = "INV_Misc_QuestionMark",
+            body = [[
 #showtooltip
-/cast [@cursor] Sigil of Misery
-        ]] 
-    },
+/cast [@cursor] %spell:207684%
+        ]]
+        },
 
-    { 
-        name = "the-hunt", 
-        icon = "INV_Misc_QuestionMark", 
-        body = [[
+        {
+            name = "the-hunt",
+            icon = "INV_Misc_QuestionMark",
+            body = [[
 #showtooltip
-/cast [nochanneling] The Hunt
-        ]] 
-    },
+/cast [nochanneling] %spell:370965%
+        ]]
+        },
 
-    { 
-        name = "throw-glaive", 
-        icon = "INV_Misc_QuestionMark", 
-        body = [[
-#showtooltip Throw Glaive
-/cast [target=mouseover,harm] Throw Glaive
-        ]] 
-    },
-}
+        {
+            name = "throw-glaive",
+            icon = "INV_Misc_QuestionMark",
+            body = [[
+#showtooltip %spell:185123%
+/cast [target=mouseover,harm] %spell:185123%
+        ]]
+        },
+    }
+end

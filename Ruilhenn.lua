@@ -6,6 +6,9 @@ local SlashCmdList = SlashCmdList
 local GetLocale = GetLocale
 local UnitClass = UnitClass
 local GetFramerate = GetFramerate
+local UnitName = UnitName
+local GetSpellName = C_Spell.GetSpellName
+local GetItemInfo = C_Item.GetItemInfo
 
 local RuilhennLocale = RuilhennLocale
 local MacroTemplates = MacroTemplates
@@ -25,13 +28,15 @@ Ruilhenn.command = {
 function Ruilhenn:Command(msg)
     local funcName = self.command[msg:lower()]
     local func = self[funcName]
-    if type(func) == "function" then
+
+    if type(func) ~= "function" then
+        self:CommandUsage()
+        return
+    end
+
         local success, err = pcall(func, self)
         if not success then
             self:Debug("Command execution error: " .. err)
-        end
-    else
-        self:CommandUsage()
     end
 end
 
@@ -87,14 +92,30 @@ function Ruilhenn:PrintGreetings()
     self:Log(L["STARTED"])
 end
 
+function Ruilhenn:ReplaceSpellIDs(macroBody)
+    -- This pattern matches "%spell:ID%" where ID is the spell ID
+    local expandedMacroBody = macroBody:gsub("%%spell:(%d+)%%", function(spellID)
+        local spellName = GetSpellName(tonumber(spellID))
+        return spellName or "UnknownSpell"
+    end)
+
+    expandedMacroBody = expandedMacroBody:gsub("%%item:(%d+)%%", function(itemID)
+        local itemName = GetItemInfo(tonumber(itemID))
+        return itemName or "UnknownItem"
+    end)
+
+    return expandedMacroBody
+end
+
 function Ruilhenn:EnsureMacroExists(macro)
+    local localizedBody = self:ReplaceSpellIDs(macro.body)
     local macroIndex = Ruilhenn:FindCharacterMacro(macro.name)
 
     if macroIndex == 0 then
-        CreateMacro(macro.name, macro.icon, macro.body, true)
+        CreateMacro(macro.name, macro.icon, localizedBody, true)
         self:Debug(L["MACRO_CREATED"]:format(macro.name))
     else
-        EditMacro(macroIndex, macro.name, macro.icon, macro.body)
+        EditMacro(macroIndex, macro.name, macro.icon, localizedBody)
         self:Debug(L["MACRO_UPDATED"]:format(macro.name))
     end
 end
@@ -171,8 +192,10 @@ function Ruilhenn:InitMacros()
     local _, playerClass = UnitClass("player")
     self:Log(L["CLASS_DETECTED"]:format(playerClass))
 
-    if MacroTemplates[playerClass] then
-        self:CreateClassMacros(MacroTemplates[playerClass])
+    local macroGenerator = MacroTemplates[playerClass]
+
+    if macroGenerator then
+        self:CreateClassMacros(macroGenerator())
     else
         self:Warning(L["NO_MACROS_DEFINED"]:format(playerClass))
     end
