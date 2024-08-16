@@ -125,7 +125,7 @@ function Ruilhenn:EnsureMacroExists(macro)
 end
 
 function Ruilhenn:CreateTaskQueue(initialTasksPerFrame)
-    local queue = { tasks = {}, tasksPerFrame = initialTasksPerFrame or 5}
+    local queue = { tasks = {}, tasksPerFrame = initialTasksPerFrame or 5 }
 
     function queue:AddTask(task)
         table.insert(self.tasks, task)
