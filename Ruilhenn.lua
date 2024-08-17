@@ -106,7 +106,7 @@ function Ruilhenn:DumpTable(value)
 end
 
 function Ruilhenn:PrintGreetings()
-    local version = '0.0.4'
+    local version = '0.1.0'
     self:Log(L["LOADED"]:format(version))
     self:Log(L["STARTED"])
 end

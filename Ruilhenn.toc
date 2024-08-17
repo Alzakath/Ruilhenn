@@ -1,5 +1,5 @@
 ## Interface: 110000, 110002
-## Version: 0.0.4
+## Version: 0.1.0
 ## Title: Ruilhenn
 ## Notes: A simple addon to create class utility macros.
 ## Author: Alzakath
@@ -12,4 +12,5 @@ l10n/frFR.lua
 macros/druid.lua
 macros/demonHunter.lua
 macros/deathKnight.lua
+macros/monk.lua
 Ruilhenn.lua
