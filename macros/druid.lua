@@ -5,6 +5,8 @@ MacroTemplates["DRUID"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip [known:2782] %spell:2782%; [known:2637] %spell:2637%
+/stopcasting
+/cancelqueuedspell
 /cast [known:2782,target=mouseover,exists,help] %spell:2782%; [known:2637,target=mouseover,exists,harm] %spell:2637%
         ]]
         },
@@ -14,6 +16,8 @@ MacroTemplates["DRUID"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip %spell:8921%
+/stopcasting
+/cancelqueuedspell
 /cast [target=mouseover,exists,harm] %spell:8921%
         ]]
         },
@@ -23,6 +27,8 @@ MacroTemplates["DRUID"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip
+/stopcasting
+/cancelqueuedspell
 /cast [@player] %spell:1126%
         ]]
         },
@@ -32,6 +38,8 @@ MacroTemplates["DRUID"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip [known:372119] %spell:8936%
+/stopcasting
+/cancelqueuedspell
 /cast [target=mouseover,known:372119] %spell:8936%
         ]]
         },
@@ -41,6 +49,8 @@ MacroTemplates["DRUID"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip [combat] %spell:20484%; [nocombat] %spell:50769%;
+/stopcasting
+/cancelqueuedspell
 /cast [target=mouseover,help,combat,dead][help,combat,dead] %spell:20484%
 /cast [target=mouseover,help,nocombat,dead][help,nocombat,dead] %spell:50769%
         ]]
@@ -51,6 +61,8 @@ MacroTemplates["DRUID"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip %spell:2908%
+/stopcasting
+/cancelqueuedspell
 /cast [target=mouseover,exists,harm] %spell:2908%
         ]]
         },
@@ -60,8 +72,22 @@ MacroTemplates["DRUID"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip %spell:102793%
+/stopcasting
+/cancelqueuedspell
 /cast [@cursor] %spell:102793%
         ]]
         },
+
+        {
+            name = "typhoon",
+            icon = "INV_Misc_QuestionMark",
+            body = [[
+#showtooltip
+/stopcasting
+/cancelqueuedspell
+/cast %spell:132469%
+        ]]
+        },
+
     }
 end

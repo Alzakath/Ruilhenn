@@ -5,6 +5,8 @@ MacroTemplates["MONK"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip %spell:218164%
+/stopcasting
+/cancelqueuedspell
 /cast [target=mouseover,exists,help] %spell:218164%
         ]]
         },
@@ -14,6 +16,8 @@ MacroTemplates["MONK"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip %spell:115078%
+/stopcasting
+/cancelqueuedspell
 /cast [target=mouseover,exists,harm] %spell:115078%
         ]]
         },
@@ -23,6 +27,7 @@ MacroTemplates["MONK"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip
+/stopcasting
 /cancelqueuedspell
 /cast %spell:388193%
         ]]
@@ -33,6 +38,7 @@ MacroTemplates["MONK"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip
+/stopcasting
 /cancelqueuedspell
 /cast %spell:115310%
         ]]
@@ -43,6 +49,7 @@ MacroTemplates["MONK"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip
+/stopcasting
 /cancelqueuedspell
 /cast %spell:325197%
         ]]
@@ -53,6 +60,8 @@ MacroTemplates["MONK"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip
+/stopcasting
+/cancelqueuedspell
 /cast [@cursor] %spell:116844%
         ]]
         },
@@ -62,6 +71,7 @@ MacroTemplates["MONK"] = function()
             icon = "INV_Misc_QuestionMark",
             body = [[
 #showtooltip
+/stopcasting
 /cancelqueuedspell
 /cast %spell:399491%
         ]]
