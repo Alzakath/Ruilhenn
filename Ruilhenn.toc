@@ -1,16 +1,28 @@
 ## Interface: 110000, 110002, 110005, 110007
-## Version: 0.1.1
 ## Title: Ruilhenn
-## Notes: A simple addon to create class utility macros.
+## Notes: A simple macro management addon
 ## Author: Alzakath
+## Version: 0.2.0
 ## SavedVariables: RuilhennDB
 ## IconTexture: Interface\AddOns\Ruilhenn\icon.tga
 
-Init.lua
-l10n/enUS.lua
-l10n/frFR.lua
+# Core files - order is important!
+Core.lua
+Log.lua
+Utils.lua
+Config.lua
+MacroManager.lua
+TaskQueue.lua
+
+# Localization files
+l10n\enUS.lua
+l10n\frFR.lua
+
+# Templates
 macros/druid.lua
 macros/demonHunter.lua
 macros/deathKnight.lua
 macros/monk.lua
-Ruilhenn.lua
+
+# Main addon file - load last
+Main.lua

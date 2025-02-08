@@ -1,3 +1,6 @@
+local _, ns = ...
+local MacroTemplates = ns.MacroTemplates
+
 MacroTemplates["DEATHKNIGHT"] = function()
     return {
         {
