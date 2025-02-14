@@ -69,17 +69,19 @@ function Ruilhenn:OnEvent(event, ...)
 end
 
 function Ruilhenn:RegisterCommands()
+    ns.Log:Debug("RegisterCommands => " .. ns.Utils:DumpTable(ns.Commands))
     for cmd, func in pairs(ns.Commands) do
         self.command[cmd] = func
+        ns.Log:Debug("Registered command: " .. cmd)
     end
 end
 
 function Ruilhenn:ADDON_LOADED(event, addon)
     if addon ~= "Ruilhenn" then return end
-
+    ns.Config:LoadSavedVariables()
     self:PrintGreetings()
     self:RegisterCommands()
-    ns.Config:LoadSavedVariables()
+
     local endTime = debugprofilestop()
     ns.Log:Debug(ns.L["LOADED_TIMER"]:format(endTime - ns.startTime))
 end

@@ -43,3 +43,5 @@ L["ACTION_PLACED_SUCCESS"] = "%s (ID: %s) déplacé avec succè dans l'emplaceme
 L["ACTION_PLACED_FAILED"] = "Echec du déplacement de %s %s (ID: %s) dans l'emplacement %s"
 L["ACTION_CLEARED_SUCCESS"] = "Emplacement d'action vidé avec succès %s"
 L["ACTION_CLEARED_FAILED"] = "Echec du nettoyage de l'emplacement %s"
+L["ACTIONS_CLEARED_COMPLETE"] = "Emplacements d'action %s vidé en %.4f secondes"
+L["CLEARING_ACTIONS_START"] = "Début: Nettoyage des emplacements d'action"

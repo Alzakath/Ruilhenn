@@ -27,3 +27,11 @@ function Utils:UnpackFirst(t)
     local first = table.remove(t, 1) -- Get the first element
     return first, t
 end
+
+function Utils:Map(func, list)
+    local new_list = {}  -- Create a new table for results
+    for i, v in ipairs(list) do
+        new_list[i] = func(v)  -- Apply function to each element
+    end
+    return new_list
+end

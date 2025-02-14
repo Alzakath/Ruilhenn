@@ -1,8 +1,8 @@
-## Interface: 110000, 110002, 110005, 110007
+## Interface: 110000, 110002, 110005, 110007, 111000
 ## Title: Ruilhenn
 ## Notes: A simple macro management addon
 ## Author: Alzakath
-## Version: 0.2.0
+## Version: 0.3.0
 ## SavedVariables: RuilhennDB
 ## IconTexture: Interface\AddOns\Ruilhenn\icon.tga
 
@@ -12,6 +12,8 @@ Log.lua
 Utils.lua
 Config.lua
 MacroManager.lua
+ActionBarsManager.lua
+BindingsManager.lua
 TaskQueue.lua
 
 # Localization files
@@ -23,6 +25,7 @@ macros/druid.lua
 macros/demonHunter.lua
 macros/deathKnight.lua
 macros/monk.lua
+macros/warlock.lua
 
 # Main addon file - load last
 Main.lua

@@ -57,7 +57,7 @@ function MacroManager:GetTemplates(playerClass)
 
     local templates = ns.MacroTemplates or {}
     
-    return templates[playerClass] or {}
+    return templates[playerClass] or nil
 end
 
 MacroManager.subcommands = {
