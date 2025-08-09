@@ -14,7 +14,7 @@ RuilhennDB = RuilhennDB or {}
 Ruilhenn.command = {
     ["debug"] = function(subcommand)
 
-        if subcommand == "st atus" then
+        if subcommand == "status" then
             if ns.Config.debugMode then
                 ns.Log:Message(ns.L["DEBUG_ACTIVATED"])
             else
