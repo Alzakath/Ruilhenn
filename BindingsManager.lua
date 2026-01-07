@@ -23,7 +23,9 @@ function BindingsManager:Save()
     for i = 1, GetNumBindings() do
         local command, key1, key2 = GetBinding(i)
         -- Normalize empty-string keys to nil; only save entries that have a command and at least one key
-        if command and command ~= "" and (key1 and key1 ~= "" or key2 and key2 ~= "") then
+        local normKey1 = (key1 and key1 ~= "") and key1 or nil
+        local normKey2 = (key2 and key2 ~= "") and key2 or nil
+        if command and command ~= "" and (normKey1 or normKey2) then
             table.insert(bindings, {
                 command = command,
                 key1 = (key1 and key1 ~= "") and key1 or nil,
@@ -35,8 +37,8 @@ function BindingsManager:Save()
     RuilhennDB.keyBindings = bindings
     RuilhennDB.bindingSet = bindingSet
 
-    -- Use Info for user-visible messages; fall back to a plain string if localization is missing
-    ns.Log:Info(L["KEY_BINDINGS_SAVED"] or "Key bindings saved.")
+    -- Use Message for user-visible messages; fall back to a plain string if localization is missing
+    ns.Log:Message(L["KEY_BINDINGS_SAVED"] or "Key bindings saved.")
 end
 
 function BindingsManager:Load()
@@ -61,7 +63,7 @@ function BindingsManager:Load()
     local targetSet = RuilhennDB.bindingSet or GetCurrentBindingSet()
     SaveBindings(targetSet)
 
-    ns.Log:Info(L["KEY_BINDINGS_LOADED"] or "Key bindings loaded.")
+    ns.Log:Message(L["KEY_BINDINGS_LOADED"] or "Key bindings loaded.")
 end
 
 -- Subcommands should actually call the methods above
