@@ -1,6 +1,6 @@
 ## Interface: 110205, 110207, 120000
 ## Title: Ruilhenn
-## Notes: A simple macro management addon
+## Notes: Save, restore, and manage Action Bars, Key Bindings, and Macros across specializations.
 ## Author: Alzakath
 ## Version: 0.3.2
 ## SavedVariables: RuilhennDB
