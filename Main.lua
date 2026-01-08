@@ -30,6 +30,9 @@ Ruilhenn.command = {
         else
             ns.Log:Message(ns.L["DEBUG_DEACTIVATED"])
         end
+    end,
+    ["help"] = function()
+        Ruilhenn:CommandUsage()
     end
 }
 
@@ -59,9 +62,22 @@ function Ruilhenn:PrintGreetings()
 end
 
 function Ruilhenn:CommandUsage()
-    ns.Log:Message("Usage:")
-    ns.Log:Message("/ruil debug - " .. ns.L["COMMAND_DEBUG_HELP"])
-    ns.Log:Message("/ruil debug status - " .. ns.L["COMMAND_STATUS_HELP"])
+    ns.Log:Message("Usage: /ruil <command>")
+    ns.Log:Message("Available commands:")
+    local cmds = {}
+    for cmd in pairs(self.command) do
+        table.insert(cmds, cmd)
+    end
+    table.sort(cmds)
+    for _, cmd in ipairs(cmds) do
+        local helpKey = "COMMAND_" .. cmd:upper() .. "_HELP"
+        local helpMsg = ns.L[helpKey]
+        if helpMsg then
+            ns.Log:Message(" - " .. cmd .. " - " .. helpMsg)
+        else
+            ns.Log:Message(" - " .. cmd)
+        end
+    end
 end
 
 function Ruilhenn:OnEvent(event, ...)
