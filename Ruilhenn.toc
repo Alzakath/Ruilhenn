@@ -2,9 +2,10 @@
 ## Title: Ruilhenn
 ## Notes: A simple macro management addon
 ## Author: Alzakath
-## Version: 0.3.1
+## Version: 0.3.2
 ## SavedVariables: RuilhennDB
 ## IconTexture: Interface\AddOns\Ruilhenn\icon.tga
+## X-Wago-ID: EGPXEeG1
 
 # Core files - order is important!
 Core.lua
