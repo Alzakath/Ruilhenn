@@ -85,10 +85,43 @@ MacroTemplates["DRUID"] = function()
             name = "typhoon",
             icon = "INV_Misc_QuestionMark",
             body = [[
-#showtooltip
+#showtooltip %spell:132469%
 /stopcasting
 /cancelqueuedspell
 /cast %spell:132469%
+        ]]
+        },
+
+        {
+            name = "efflorescence",
+            icon = "INV_Misc_QuestionMark",
+            body = [[
+#showtooltip %spell:81269%
+/stopcasting
+/cancelqueuedspell
+/cast [@cursor] %spell:81269%
+        ]]
+        },
+
+        {
+            name = "sunfire",
+            icon = "INV_Misc_QuestionMark",
+            body = [[
+#showtooltip %spell:93402%
+/stopcasting
+/cancelqueuedspell
+/cast [target=mouseover,exists,harm] %spell:93402%
+        ]]
+        },
+
+        {
+            name = "decurse",
+            icon = "INV_Misc_QuestionMark",
+            body = [[
+#showtooltip %spell:88423%
+/stopcasting
+/cancelqueuedspell
+/cast [target=mouseover,exists,help] %spell:88423%
         ]]
         },
 
