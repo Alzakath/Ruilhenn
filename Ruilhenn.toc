@@ -1,8 +1,8 @@
-## Interface: 110205, 110207, 120000
+## Interface: 110007, 110205, 110207, 120000, 120001
 ## Title: Ruilhenn
 ## Notes: Save, restore, and manage Action Bars, Key Bindings, and Macros across specializations.
 ## Author: Alzakath
-## Version: 0.3.2
+## Version: 0.3.3
 ## SavedVariables: RuilhennDB
 ## IconTexture: Interface\AddOns\Ruilhenn\icon.tga
 ## X-Wago-ID: EGPXEeG1
