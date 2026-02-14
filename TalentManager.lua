@@ -36,7 +36,8 @@ function TalentManager:Save()
             if exportString then
                 table.insert(savedBuilds, {
                     name = info.name,
-                    importString = exportString
+                    importString = exportString,
+                    usesSharedActionBars = info.usesSharedActionBars
                 })
             end
         end
@@ -63,6 +64,13 @@ end
 
 function TalentManager:Load()
     ns.Log:Debug("TalentManager:Load() started.")
+
+    -- Check for unspent talent points
+    if C_ClassTalents.HasUnspentTalentPoints() or C_ClassTalents.HasUnspentHeroTalentPoints() then
+        ns.Log:Message(L["UNSPENT_TALENT_POINTS"] or "Load aborted: You have unspent talent points.")
+        return
+    end
+
     local specIndex = GetSpecialization()
     if not specIndex then
         ns.Log:Debug("TalentManager:Load() aborted: No active specialization.")
@@ -114,6 +122,10 @@ function TalentManager:Load()
         end
 
         if configID then
+            if build.usesSharedActionBars ~= nil then
+                C_ClassTalents.SetUsesSharedActionBars(configID, build.usesSharedActionBars)
+            end
+
             -- Import the string
             local entries = {
                 ["nodeID"] = 1,
