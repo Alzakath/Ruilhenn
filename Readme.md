@@ -15,7 +15,12 @@ Keep your control scheme intact.
 - **Save**: Backs up your current key bindings.
 - **Load**: Restores your key bindings from the saved profile.
 
-### 3. Macro Management
+### 3. Talent Manager
+Share your builds across characters.
+- **Save**: Saves all talent loadouts for your current specialization.
+- **Load**: Imports saved talent loadouts to your current character (skips if a loadout with the same name exists).
+
+### 4. Macro Management
 Includes utilities to help generate and manage class-specific macros, reducing the manual effort of writing standard utility macros for every character.
 
 ## Usage
@@ -27,6 +32,8 @@ Type `/ruil` or `/ruilhenn` to access the addon.
 - `/ruil bars load` : Restore action bars for the current spec.
 - `/ruil bindings save` : Save current key bindings.
 - `/ruil bindings load` : Restore saved key bindings.
+- `/ruil talents save` : Save talent builds for the current spec.
+- `/ruil talents load` : Import saved talent builds.
 
 ## Why use Ruilhenn?
 
