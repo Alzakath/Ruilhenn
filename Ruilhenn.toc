@@ -17,6 +17,7 @@ ActionBarsManager.lua
 BindingsManager.lua
 TalentManager.lua
 TaskQueue.lua
+EventManager.lua
 
 # Localization files
 l10n\enUS.lua
