@@ -42,6 +42,11 @@ function BindingsManager:Save()
 end
 
 function BindingsManager:Load()
+    if InCombatLockdown() then
+        ns.Log:Error(L["ERR_IN_COMBAT"] or "Cannot restore key bindings in combat.")
+        return
+    end
+
     if not RuilhennDB or not RuilhennDB.keyBindings then
         ns.Log:Debug("BindingsManager:Load called but no saved bindings exist.")
         return

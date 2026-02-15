@@ -30,6 +30,11 @@ function MacroManager:ReplaceSpellIDs(macroBody)
 end
 
 function MacroManager:EnsureMacroExists(macro)
+    if InCombatLockdown() then
+        ns.Log:Error(ns.L["ERR_IN_COMBAT"] or "Cannot manage macros in combat.")
+        return
+    end
+
     local localizedBody = self:ReplaceSpellIDs(macro.body)
     local macroIndex = self:FindCharacterMacro(macro.name)
 

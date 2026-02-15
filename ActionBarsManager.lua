@@ -192,6 +192,11 @@ function ActionBarsManager:Save()
 end
 
 function ActionBarsManager:Load()
+    if InCombatLockdown() then
+        ns.Log:Error(ns.L["ERR_IN_COMBAT"] or "Cannot restore action bars in combat.")
+        return
+    end
+
     local _, playerClass = UnitClass("player")
     local currentSpec = GetSpecialization()
     RuilhennDB.actionBars = RuilhennDB.actionBars or {}
