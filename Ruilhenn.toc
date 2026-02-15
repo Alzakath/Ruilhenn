@@ -11,17 +11,18 @@
 Core.lua
 Log.lua
 Utils.lua
-Config.lua
-MacroManager.lua
-ActionBarsManager.lua
-BindingsManager.lua
-TalentManager.lua
 TaskQueue.lua
 EventManager.lua
 
 # Localization files
 l10n\enUS.lua
 l10n\frFR.lua
+
+Config.lua
+MacroManager.lua
+ActionBarsManager.lua
+BindingsManager.lua
+TalentManager.lua
 
 # Templates
 macros/druid.lua
