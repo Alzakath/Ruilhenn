@@ -59,7 +59,7 @@ function ActionBarsManager:PickupActionItem(actionId)
     local itemInfo = GetItemInfo(actionId)
     if itemInfo then
         PickupItem(actionId)
-        return true, itemInfo[1] or ""
+        return true, itemInfo or ""
     else
         ns.Log:Error(ns.L["ITEM_NOT_FOUND"]:format(actionId))
     end
@@ -71,7 +71,7 @@ function ActionBarsManager:PickupActionMacro(actionId)
     local macroInfo = GetMacroInfo(actionId)
     if macroInfo then
         PickupMacro(actionId)
-        return true, macroInfo[0] or ""
+        return true, macroInfo or ""
     else
         ns.Log:Error(ns.L["MACRO_NOT_FOUND"]:format(actionId))
     end
