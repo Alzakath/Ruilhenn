@@ -1,0 +1,101 @@
+-- These desired-behavior tests intentionally fail until the associated bugs are fixed.
+-- Run explicitly: lua tests/run.lua --known-issues
+local T, fixture = ...
+
+T.test("#13: talent import uses name before import string", function()
+    local env, ns, s, load = fixture(T)
+    load("TalentManager.lua")
+    env.RuilhennDB.talents = { DRUID = { [1] = { { name = "Raid", importString = "encoded-build" } } } }
+    s.configIDs[102], s.configs[10] = { 10 }, { name = "Raid" }
+    ns.TalentManager:Load()
+    T.equal(#s.imports, 1)
+    T.equal(s.imports[1][3], "Raid")
+    T.equal(s.imports[1][4], "encoded-build")
+end)
+
+T.test("#13: talent import supplies an array of actual node entries", function()
+    local env, ns, s, load = fixture(T)
+    load("TalentManager.lua")
+    env.RuilhennDB.talents = { DRUID = { [1] = { { name = "Raid", importString = "encoded-build" } } } }
+    s.configIDs[102], s.configs[10] = { 10 }, { name = "Raid" }
+    ns.TalentManager:Load()
+    T.equal(#s.imports, 1)
+    assert(type(s.imports[1][2][1]) == "table", "import entries are not an array")
+end)
+
+T.test("#14: action snapshots do not require deprecated specialization globals", function()
+    local env, ns, _, load = fixture(T)
+    env.GetSpecialization = nil
+    env.C_SpecializationInfo = { GetSpecialization = function() return 1 end }
+    load("ActionBarsManager.lua")
+    ns.ActionBarsManager:Save()
+end)
+
+T.test("#15: macros in the last character slot are updated without duplication", function()
+    local _, ns, s, load = fixture(T)
+    load("MacroManager.lua")
+    s.macros[150] = { name = "utility", body = "/say old" }
+    ns.MacroManager:EnsureMacroExists({ name = "utility", icon = 123, body = "/say updated" })
+    T.equal(#s.created, 0)
+    T.equal(s.macros[150].body, "/say updated")
+end)
+
+T.test("#16: rejected loadout creation does not report a pending successful request", function()
+    local env, ns, s, load = fixture(T)
+    load("TalentManager.lua")
+    s.rejectCreation = true
+    env.RuilhennDB.talents = { DRUID = { [1] = { { name = "Raid", importString = "encoded-build" } } } }
+    ns.TalentManager:Load()
+    T.equal(#s.requests, 1)
+    assert(not table.concat(s.output, "\n"):find("Requested creation", 1, true),
+        "rejected creation reported as requested")
+end)
+
+T.test("#17: missing item data never persists UnknownItem into a macro", function()
+    local _, ns, s, load = fixture(T)
+    load("MacroManager.lua")
+    ns.MacroManager:EnsureMacroExists({ name = "item", icon = 123, body = "/use %item:99%" })
+    for _, macro in ipairs(s.created) do
+        assert(not macro[3]:find("UnknownItem", 1, true), "uncached item persisted as UnknownItem")
+    end
+end)
+
+T.test("#18: clearing bars in combat preserves both slots and cursor", function()
+    local _, ns, s, load = fixture(T)
+    load("ActionBarsManager.lua")
+    s.slots[1], s.cursor, s.combat = { "spell", 42 }, { "item", 99 }, true
+    ns.ActionBarsManager:Clear("1")
+    T.equal(#s.pickups, 0)
+    T.equal(s.slots[1][2], 42)
+    T.equal(s.cursor[2], 99)
+end)
+
+T.test("Untracked: invalid bar numbers report an error without throwing", function()
+    local _, ns, s, load = fixture(T)
+    load("ActionBarsManager.lua")
+    s.slots[1] = { "spell", 42 }
+    ns.ActionBarsManager:Clear("99")
+    T.equal(#s.pickups, 0)
+    T.equal(s.slots[1][2], 42)
+    T.contains(s.output[#s.output], "99")
+end)
+
+T.test("Untracked: EventManager debug toggle works with the production logger", function()
+    local _, ns, _, load = fixture(T)
+    load("TaskQueue.lua")
+    load("EventManager.lua")
+    local manager = ns.EventManager:New()
+    manager:SetDebugMode(false)
+    T.equal(manager.debugMode, false)
+end)
+
+T.test("Stock Lua 5.1: event delivery does not require table.unpack", function()
+    local _, ns, s, load = fixture(T)
+    load("TaskQueue.lua")
+    load("EventManager.lua")
+    local manager, received = ns.EventManager:New(), false
+    manager:RegisterEvent("READY", function() received = true end)
+    manager:FireEvent("READY")
+    s:drain()
+    T.equal(received, true)
+end)
