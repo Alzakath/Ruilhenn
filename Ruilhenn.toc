@@ -23,6 +23,7 @@ Config.lua
 MacroManager.lua
 ActionBarsManager.lua
 BindingsManager.lua
+TalentImport.lua
 TalentManager.lua
 
 # Templates

@@ -6,7 +6,7 @@ T.test("BindingsManager: existing #12 regression suite", function()
     T.load("tests/BindingsManagerTest.lua", T.sandbox(), {})
 end)
 
-for _, file in ipairs({ "CoreTest", "ManagersTest", "MainTest" }) do
+for _, file in ipairs({ "CoreTest", "ManagersTest", "MainTest", "TalentImportTest" }) do
     assert(loadfile("tests/" .. file .. ".lua"))(T, fixture)
 end
 

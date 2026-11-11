@@ -2,27 +2,6 @@
 -- Run explicitly: lua tests/run.lua --known-issues
 local T, fixture = ...
 
-T.test("#13: talent import uses name before import string", function()
-    local env, ns, s, load = fixture(T)
-    load("TalentManager.lua")
-    env.RuilhennDB.talents = { DRUID = { [1] = { { name = "Raid", importString = "encoded-build" } } } }
-    s.configIDs[102], s.configs[10] = { 10 }, { name = "Raid" }
-    ns.TalentManager:Load()
-    T.equal(#s.imports, 1)
-    T.equal(s.imports[1][3], "Raid")
-    T.equal(s.imports[1][4], "encoded-build")
-end)
-
-T.test("#13: talent import supplies an array of actual node entries", function()
-    local env, ns, s, load = fixture(T)
-    load("TalentManager.lua")
-    env.RuilhennDB.talents = { DRUID = { [1] = { { name = "Raid", importString = "encoded-build" } } } }
-    s.configIDs[102], s.configs[10] = { 10 }, { name = "Raid" }
-    ns.TalentManager:Load()
-    T.equal(#s.imports, 1)
-    assert(type(s.imports[1][2][1]) == "table", "import entries are not an array")
-end)
-
 T.test("#14: action snapshots do not require deprecated specialization globals", function()
     local env, ns, _, load = fixture(T)
     env.GetSpecialization = nil
@@ -41,10 +20,11 @@ T.test("#15: macros in the last character slot are updated without duplication",
 end)
 
 T.test("#16: rejected loadout creation does not report a pending successful request", function()
-    local env, ns, s, load = fixture(T)
-    load("TalentManager.lua")
+    local talentFixture = dofile("tests/TalentFixture.lua")
+    local _, ns, s = talentFixture(T, fixture)
+    s.configIDs[102] = {}
     s.rejectCreation = true
-    env.RuilhennDB.talents = { DRUID = { [1] = { { name = "Raid", importString = "encoded-build" } } } }
+    s:backup()
     ns.TalentManager:Load()
     T.equal(#s.requests, 1)
     assert(not table.concat(s.output, "\n"):find("Requested creation", 1, true),

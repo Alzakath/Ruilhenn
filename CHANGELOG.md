@@ -1,6 +1,7 @@
 # Ruilhenn Changelog
 
 ## Unreleased
+- Decode and validate Retail talent import strings before restoring loadouts; fix import argument order and report game rejection details (#13).
 - Fix key binding backups to preserve both keys and exclude the binding category (#12).
 - Reject incompatible older binding backups with instructions to save them again.
 - Report failed key assignments without saving an incomplete restore or reporting success.

@@ -32,7 +32,6 @@ as passing tests. Move each case into the normal suite when its fix lands.
 
 | Area | Reproduced defect |
 | --- | --- |
-| #13 | Reversed talent import arguments and non-array placeholder entries (two tests) |
 | #14 | Action snapshots require deprecated specialization globals |
 | #15 | Character macros in slot 150 are missed |
 | #16 | Failed loadout creation is announced as requested |
@@ -49,11 +48,40 @@ installed WoW build supplies this extension. Frame naming/protection, secure
 execution, contextual binding semantics, network responses, spell availability,
 actual rendering, and persistence across game reload/logout are not simulated.
 
-Local results (2026-11-11, Lua 5.1.5): **36 normal tests passed**; all **10
+Local results (2026-11-11, Lua 5.1.5): **60 normal tests passed**; all **8
 known-defect tests failed** in their intended behavior paths. Those counts
 include the existing #12 regression file as one aggregate test; it retains
 its individual assertions. `git diff --check` passed. GitHub Actions has not
-run for these unpushed changes. Production addon behavior was not changed.
+run for these unpushed changes.
+
+## Talent import regression checks (#13)
+
+`TalentImportTest.lua` exercises a production decoder with independently
+encoded bit streams. Coverage includes name/string argument order; granted,
+partial, choice, hero-subtree and tiered-node ranks; export/save/import round
+trips; zero-hash third-party strings; invalid alphabets and truncation; spec,
+version and hash mismatches; invalid ranks/choices; trailing data; missing
+node data; combat protection; API rejection details; and localized errors.
+Invalid builds are rejected before creation, import, or shared-bar mutation.
+
+The decoder uses C_Traits data and an addon-owned bit reader so it does not
+load or manipulate the Blizzard talent UI. The TOC loads it before the
+manager. No new user setting or interactive UI was introduced.
+
+API and format evidence was rechecked on 2026-11-11 against live Retail
+commit `297d7aaaa736f346b3e036f38ee088eaf7f8c07f` (12.1.5.70783):
+[serialization and conversion](https://github.com/Gethe/wow-ui-source/blob/297d7aaaa736f346b3e036f38ee088eaf7f8c07f/Interface/AddOns/Blizzard_PlayerSpells/ClassTalents/Blizzard_ClassTalentImportExport.lua),
+[base64 bit order and padding](https://github.com/Gethe/wow-ui-source/blob/297d7aaaa736f346b3e036f38ee088eaf7f8c07f/Interface/AddOns/Blizzard_SharedXMLBase/ExportUtil.lua),
+[import contract](https://github.com/Gethe/wow-ui-source/blob/297d7aaaa736f346b3e036f38ee088eaf7f8c07f/Interface/AddOns/Blizzard_APIDocumentationGenerated/ClassTalentsDocumentation.lua),
+[trait lookups](https://github.com/Gethe/wow-ui-source/blob/297d7aaaa736f346b3e036f38ee088eaf7f8c07f/Interface/AddOns/Blizzard_APIDocumentationGenerated/SharedTraitsDocumentation.lua).
+
+In-game round trips and legal node combinations still need client validation;
+the game remains responsible for rejecting combinations that violate talent
+prerequisites. New-loadout asynchronous completion remains tracked in #16.
+English/French messages have formatting coverage but no separate linguistic
+or in-game review. On a disposable profile, save a build including hero and
+choice talents, restore it, compare the resulting export, and verify that
+invalid strings cause no loadout changes and that actual game errors appear.
 
 ## Binding backup regression checks
 
