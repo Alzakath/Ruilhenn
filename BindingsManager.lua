@@ -11,6 +11,7 @@ local SaveBindings = SaveBindings
 local GetCurrentBindingSet = GetCurrentBindingSet
 
 local L = ns.L or {} -- fallback if localization table is not available
+local BINDINGS_VERSION = 1
 
 -- Ensure DB exists
 RuilhennDB = RuilhennDB or {}
@@ -21,21 +22,22 @@ function BindingsManager:Save()
     local bindings = {}
 
     for i = 1, GetNumBindings() do
-        local command, key1, key2 = GetBinding(i)
+        local command, _, key1, key2 = GetBinding(i)
         -- Normalize empty-string keys to nil; only save entries that have a command and at least one key
         local normKey1 = (key1 and key1 ~= "") and key1 or nil
         local normKey2 = (key2 and key2 ~= "") and key2 or nil
         if command and command ~= "" and (normKey1 or normKey2) then
             table.insert(bindings, {
                 command = command,
-                key1 = (key1 and key1 ~= "") and key1 or nil,
-                key2 = (key2 and key2 ~= "") and key2 or nil,
+                key1 = normKey1,
+                key2 = normKey2,
             })
         end
     end
 
     RuilhennDB.keyBindings = bindings
     RuilhennDB.bindingSet = bindingSet
+    RuilhennDB.keyBindingsVersion = BINDINGS_VERSION
 
     -- Use Message for user-visible messages; fall back to a plain string if localization is missing
     ns.Log:Message(L["KEY_BINDINGS_SAVED"] or "Key bindings saved.")
@@ -52,16 +54,31 @@ function BindingsManager:Load()
         return
     end
 
+    -- Older backups stored the category as a key and lost the second key.
+    -- They cannot be repaired reliably without a fresh capture.
+    if RuilhennDB.keyBindingsVersion ~= BINDINGS_VERSION then
+        ns.Log:Error(L["KEY_BINDINGS_BACKUP_OUTDATED"] or "This key binding backup is incompatible. Set up your desired bindings, then run /ruil bindings save to replace it before loading.")
+        return
+    end
+
     -- Apply saved bindings. Only set bindings if both key and command exist.
+    local failed = false
     for _, bind in ipairs(RuilhennDB.keyBindings) do
         if bind and bind.command then
-            if bind.key1 then
-                SetBinding(bind.key1, bind.command)
+            if bind.key1 and not SetBinding(bind.key1, bind.command) then
+                failed = true
+                ns.Log:Error((L["KEY_BINDING_FAILED"] or "Could not bind %s to %s."):format(bind.key1, bind.command))
             end
-            if bind.key2 then
-                SetBinding(bind.key2, bind.command)
+            if bind.key2 and not SetBinding(bind.key2, bind.command) then
+                failed = true
+                ns.Log:Error((L["KEY_BINDING_FAILED"] or "Could not bind %s to %s."):format(bind.key2, bind.command))
             end
         end
+    end
+
+    if failed then
+        ns.Log:Error(L["KEY_BINDINGS_LOAD_INCOMPLETE"] or "Key binding restore was incomplete. Some bindings may have changed for this session; the result was not saved.")
+        return
     end
 
     -- Restore to the saved binding set if available; otherwise save to current.

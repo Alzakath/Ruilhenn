@@ -1,5 +1,10 @@
 # Ruilhenn Changelog
 
+## Unreleased
+- Fix key binding backups to preserve both keys and exclude the binding category (#12).
+- Reject incompatible older binding backups with instructions to save them again.
+- Report failed key assignments without saving an incomplete restore or reporting success.
+
 ## v0.4.0
 - Feature: Added Talent Manager to save and load talent builds across characters.
 
