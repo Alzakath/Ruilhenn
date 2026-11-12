@@ -11,6 +11,7 @@ return function(T, locale)
     env.SlashCmdList = {}
     env.print = function(message) table.insert(s.output, message) end
     env.GetLocale = function() return locale or "enUS" end
+    env.GetBuildInfo = function() return "12.1.5", "70783", "Nov 4 2026", 120105 end
     env.debugprofilestop = function() return 10 end
     env.UnitName = function() return s.player end
     env.UnitClass = function() return "LocalizedClass", s.class end

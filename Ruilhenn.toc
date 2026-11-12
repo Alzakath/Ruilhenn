@@ -35,4 +35,5 @@ macros/monk.lua
 macros/warlock.lua
 
 # Main addon file - load last
+Validation.lua
 Main.lua

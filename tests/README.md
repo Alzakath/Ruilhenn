@@ -26,27 +26,37 @@ Tests are not included in the addon's TOC.
 lua tests/run.lua --known-issues
 ```
 
-This opt-in run adds desired-behavior tests for existing defects. It **exits
-nonzero while those defects remain**; failures are not swallowed or counted
-as passing tests. Move each case into the normal suite when its fix lands.
+All original known-defect reproductions now live in the normal regression
+suites. This option is retained for compatibility and adds zero extra cases.
+Event delivery uses stock Lua 5.1 `unpack` without an injected alias, and its
+test preserves nil payload positions. Frame naming/protection, secure
+execution, network delivery, actual rendering, spell availability and game
+persistence are not certified by these mocks.
 
-| Area | Reproduced defect |
-| --- | --- |
-| Untracked | EventManager debug toggle calls nonexistent `Log:Info` |
-| Stock Lua 5.1 | Event delivery fails without `table.unpack` |
+Local results (2026-11-12, Lua 5.1.5): **92 normal tests passed**, no remaining
+opt-in defect cases, and `git diff --check` passed. The #12 file remains one
+aggregate case containing its original assertions. Delivery and runtime
+evidence are recorded in `docs/RETAIL-COMPATIBILITY.md`.
 
-The normal event-dispatch test explicitly supplies a sandbox-local
-`table.unpack = unpack` alias to isolate dispatch behavior. The stock Lua
-case does not supply that alias. Neither result certifies whether the
-installed WoW build supplies this extension. Frame naming/protection, secure
-execution, contextual binding semantics, network responses, spell availability,
-actual rendering, and persistence across game reload/logout are not simulated.
+## Release and actual-client checks (#19)
 
-Local results (2026-11-12, Lua 5.1.5): **87 normal tests passed**; **2
-known-defect tests failed** in their intended behavior paths. Those counts
-include the existing #12 regression file as one aggregate test; it retains
-its individual assertions. `git diff --check` passed. GitHub Actions has not
-results for subsequent deliveries are recorded in `docs/RETAIL-COMPATIBILITY.md`.
+```sh
+python tools/package_release.py --check
+python tools/package_release.py
+```
+
+The standard-library tool checks interface 120105, TOC references and exact
+file-name case, initialization order, and SavedVariables metadata. It builds
+and verifies a ZIP under `dist/` with exactly one `Ruilhenn/` root and the
+referenced runtime files, icon and documentation. Development files are
+excluded; `.pkgmeta` also excludes them from the existing release workflow.
+The CI workflow runs the artifact check after the Lua suite.
+
+`/ruil validate` records the actual client build/interface/locale, binding set,
+macro limit, required API presence, fallback setting and unresolved template
+spell metadata in `RuilhennDB.validation`. It does not modify bindings, bars,
+macros, talents or CVars and explicitly does not mark feature tests passed.
+Use `docs/RETAIL-VALIDATION.md` for the remaining actual-client checklist.
 
 ## Macro capacity (#15)
 

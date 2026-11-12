@@ -18,3 +18,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y lua5.1
       - name: Run unit tests
         run: lua5.1 tests/run.lua
+      - name: Validate Retail release artifact
+        run: python3 tools/package_release.py --check

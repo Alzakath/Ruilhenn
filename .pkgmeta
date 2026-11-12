@@ -1,0 +1,10 @@
+package-as: Ruilhenn
+ignore:
+  - tests
+  - docs
+  - tools
+  - dist
+  - .github
+  - .gemini
+  - .gitignore
+  - RETAIL-API-REVIEW.md

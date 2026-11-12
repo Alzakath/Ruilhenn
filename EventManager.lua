@@ -37,12 +37,12 @@ function EventManager:RegisterEvent(eventName, callback)
     if not self.eventCallbacks[eventName] then
         self.eventCallbacks[eventName] = {}
         if self.debugMode then
-            Log:Debug("EventManager: Registered new event '%s'", eventName)
+            Log:Debug(("EventManager: Registered new event '%s'"):format(eventName))
         end
     end
     table.insert(self.eventCallbacks[eventName], callback)
     if self.debugMode then
-        Log:Debug("EventManager: Added callback for event '%s'", eventName)
+        Log:Debug(("EventManager: Added callback for event '%s'"):format(eventName))
     end
 end
 
@@ -51,22 +51,23 @@ end
 -- @param ... (any) Arguments to pass to callbacks
 function EventManager:FireEvent(eventName, ...)
     if self.debugMode then
-        Log:Debug("EventManager: Firing event '%s'", eventName)
+        Log:Debug(("EventManager: Firing event '%s'"):format(eventName))
     end
     local args = {...}
+    local argCount = select("#", ...)
     self.queue:AddTask(function()
         if self.eventCallbacks[eventName] then
             for i, callback in ipairs(self.eventCallbacks[eventName]) do
-                local success, err = pcall(callback, table.unpack(args))
+                local success, err = pcall(callback, unpack(args, 1, argCount))
                 if not success then
-                    Log:Error("EventManager: Error in callback for event '%s': %s", eventName, err)
+                    Log:Error(("EventManager: Error in callback for event '%s': %s"):format(eventName, tostring(err)))
                 elseif self.debugMode then
-                    Log:Debug("EventManager: Executed callback %d for event '%s'", i, eventName)
+                    Log:Debug(("EventManager: Executed callback %d for event '%s'"):format(i, eventName))
                 end
             end
         else
             if self.debugMode then
-                Log:Debug("EventManager: No callbacks registered for event '%s'", eventName)
+                Log:Debug(("EventManager: No callbacks registered for event '%s'"):format(eventName))
             end
         end
     end)
@@ -77,7 +78,7 @@ end
 -- @param enable (boolean) True to enable, false to disable
 function EventManager:SetDebugMode(enable)
     self.debugMode = enable
-    Log:Info("EventManager: Debug mode %s", enable and "enabled" or "disabled")
+    Log:Debug(("EventManager: Debug mode %s"):format(enable and "enabled" or "disabled"))
 end
 
 --- Returns the number of callbacks registered for an event.

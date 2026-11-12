@@ -5,7 +5,7 @@ local GetLocale = GetLocale
 
 if GetLocale() ~= "frFR" then return end
 
-ns.L = {}
+ns.L = ns.L or {}
 local L = ns.L
 
 L["LOADED"] = "Version %s chargée"
@@ -73,3 +73,10 @@ L["COMMAND_HELP_HELP"] = "Lister les commandes disponibles."
 L["COMMAND_MACRO_HELP"] = "Gérer les macros."
 L["COMMAND_BARS_HELP"] = "Gérer les barres d'action."
 L["COMMAND_BINDINGS_HELP"] = "Gérer les raccourcis."
+L["COMMAND_VALIDATE_HELP"] = "Enregistrer la version du client et la présence des API."
+L["VALIDATION_BUILD"] = "Vérification Retail : version %s, build %s, interface %s, langue %s."
+L["VALIDATION_MISSING"] = "API nécessaires absentes : %s"
+L["VALIDATION_FALLBACK"] = "API obsolètes de compatibilité : %s (valeur observée, non modifiée)."
+L["VALIDATION_TEMPLATES"] = "Sorts des modèles sans métadonnées : %s. Les sorts appris et le fonctionnement des macros restent à tester."
+L["VALIDATION_SAVED"] = "Observations enregistrées dans RuilhennDB.validation. Les tests fonctionnels doivent être consignés séparément."
+L["VALIDATION_NONE"] = "aucune"

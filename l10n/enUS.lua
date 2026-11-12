@@ -3,9 +3,8 @@ local addonName, ns = ...
 -- WoW API
 local GetLocale = GetLocale
 
-if GetLocale() ~= "enUS" then return end
-
-ns.L = {}
+-- Base catalog for every locale; later locale files override these strings.
+ns.L = ns.L or {}
 local L = ns.L
 
 L["LOADED"] = "Version %s loaded"
@@ -73,3 +72,10 @@ L["COMMAND_HELP_HELP"] = "List available commands."
 L["COMMAND_MACRO_HELP"] = "Manage macros."
 L["COMMAND_BARS_HELP"] = "Manage action bars."
 L["COMMAND_BINDINGS_HELP"] = "Manage key bindings."
+L["COMMAND_VALIDATE_HELP"] = "Record client build and API-presence diagnostics."
+L["VALIDATION_BUILD"] = "Retail check: version %s, build %s, interface %s, locale %s."
+L["VALIDATION_MISSING"] = "Required APIs missing: %s"
+L["VALIDATION_FALLBACK"] = "Deprecated API fallbacks: %s (observed; not changed)."
+L["VALIDATION_TEMPLATES"] = "Template spells without metadata: %s. Learned spells and macro behavior still need testing."
+L["VALIDATION_SAVED"] = "Diagnostic observations saved in RuilhennDB.validation. Feature tests must be recorded separately."
+L["VALIDATION_NONE"] = "none"

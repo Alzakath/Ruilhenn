@@ -147,9 +147,7 @@ end)
 
 T.test("EventManager: callbacks receive payloads in order and errors are isolated", function()
     local env, ns, s, load = fixture(T)
-    -- Isolate event dispatch from the separately tested table.unpack availability.
-    -- This alias is an explicit fixture assumption, not a Retail availability claim.
-    env.table.unpack = unpack
+    T.equal(env.table.unpack, nil, "fixture must use stock Lua 5.1")
     load("TaskQueue.lua")
     load("EventManager.lua")
     local manager, received = ns.EventManager:New(), {}
