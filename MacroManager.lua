@@ -12,8 +12,8 @@ local GetItemInfo = C_Item.GetItemInfo
 local UnitClass = UnitClass
 
 -- local variables
-NUM_CHARACTER_MACROS = 18
-FIRST_CHARACTER_MACRO_INDEX = 121
+local NUM_CHARACTER_MACROS = Constants.MacroConsts.MAX_CHARACTER_MACROS
+local FIRST_CHARACTER_MACRO_INDEX = Constants.MacroConsts.MAX_ACCOUNT_MACROS + 1
 
 function MacroManager:ReplaceSpellIDs(macroBody)
     local expandedMacroBody = macroBody:gsub("%%spell:(%d+)%%", function(spellID)
@@ -36,26 +36,44 @@ function MacroManager:EnsureMacroExists(macro)
     end
 
     local localizedBody = self:ReplaceSpellIDs(macro.body)
-    local macroIndex = self:FindCharacterMacro(macro.name)
+    local macroIndex, freeSlot = self:FindCharacterMacro(macro.name)
 
     if macroIndex == 0 then
-        CreateMacro(macro.name, macro.icon, localizedBody, true)
+        if not freeSlot then
+            ns.Log:Error((ns.L["MACRO_STORAGE_FULL"] or "Cannot create macro %s: character macro storage is full."):format(macro.name))
+            return false
+        end
+        local ok, result = pcall(CreateMacro, macro.name, macro.icon, localizedBody, true)
+        if not ok or type(result) ~= "number" or result < FIRST_CHARACTER_MACRO_INDEX or
+            result >= FIRST_CHARACTER_MACRO_INDEX + NUM_CHARACTER_MACROS then
+            ns.Log:Error((ns.L["MACRO_WRITE_FAILED"] or "Could not save macro %s."):format(macro.name))
+            if not ok then ns.Log:Debug(tostring(result)) end
+            return false
+        end
         ns.Log:Debug(ns.L["MACRO_CREATED"]:format(macro.name))
     else
-        EditMacro(macroIndex, macro.name, macro.icon, localizedBody)
+        local ok, result = pcall(EditMacro, macroIndex, macro.name, macro.icon, localizedBody)
+        if not ok or result ~= macroIndex then
+            ns.Log:Error((ns.L["MACRO_WRITE_FAILED"] or "Could not save macro %s."):format(macro.name))
+            if not ok then ns.Log:Debug(tostring(result)) end
+            return false
+        end
         ns.Log:Debug(ns.L["MACRO_UPDATED"]:format(macro.name))
     end
+    return true
 end
 
 function MacroManager:FindCharacterMacro(macroName)
+    local freeSlot
     for i = 1, NUM_CHARACTER_MACROS do
         local macroIndex = i + FIRST_CHARACTER_MACRO_INDEX - 1
         local name = GetMacroInfo(macroIndex)
+        if not name and not freeSlot then freeSlot = macroIndex end
         if name == macroName then
             return macroIndex
         end
     end
-    return 0
+    return 0, freeSlot
 end
 
 function MacroManager:GetTemplates(playerClass)

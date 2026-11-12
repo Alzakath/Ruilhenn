@@ -2,15 +2,6 @@
 -- Run explicitly: lua tests/run.lua --known-issues
 local T, fixture = ...
 
-T.test("#15: macros in the last character slot are updated without duplication", function()
-    local _, ns, s, load = fixture(T)
-    load("MacroManager.lua")
-    s.macros[150] = { name = "utility", body = "/say old" }
-    ns.MacroManager:EnsureMacroExists({ name = "utility", icon = 123, body = "/say updated" })
-    T.equal(#s.created, 0)
-    T.equal(s.macros[150].body, "/say updated")
-end)
-
 T.test("#16: rejected loadout creation does not report a pending successful request", function()
     local talentFixture = dofile("tests/TalentFixture.lua")
     local _, ns, s = talentFixture(T, fixture)

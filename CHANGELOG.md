@@ -1,6 +1,7 @@
 # Ruilhenn Changelog
 
 ## Unreleased
+- Search all client-defined character macro slots and report full storage or rejected writes (#15).
 - Use current Retail specialization and action-text APIs without deprecated fallback wrappers (#14).
 - Decode and validate Retail talent import strings before restoring loadouts; fix import argument order and report game rejection details (#13).
 - Fix key binding backups to preserve both keys and exclude the binding category (#12).
