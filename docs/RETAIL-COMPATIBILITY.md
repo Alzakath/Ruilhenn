@@ -11,8 +11,8 @@ Do not mark unavailable client evidence as passed.
 | --- | --- | --- |
 | REQ-15 | Client-derived macro range, update every character slot, report full/rejected writes | Delivered in `4cc03dd`; #15 closed. Runtime not run. |
 | REQ-16 | Serialize loadout creation, handle rejection/events, prevent duplicate requests and unsafe combat writes | Delivered in `fe78444`; #16 closed. Runtime not run. |
-| REQ-17 | Wait for item data, resume safely, never persist UnknownItem, report permanent failure | Implemented; 82 normal tests pass, including 9 item-data cases. Ready for delivery. Runtime not run. |
-| REQ-18 | Refuse clearing in combat before cursor mutation; preserve normal clearing | Next slice. |
+| REQ-17 | Wait for item data, resume safely, never persist UnknownItem, report permanent failure | Delivered in `e9ffea7`; #17 closed. Runtime not run. |
+| REQ-18 | Refuse clearing in combat before cursor mutation; preserve normal clearing | Implemented; 87 normal tests pass, including 5 clearing cases. Ready for delivery. Runtime not run. |
 | REQ-19 | Validate packaging, TOC, build and actual-client acceptance; record precise evidence | Pending fixes; current host has no confirmed live WoW connection. |
 | REQ-LOCALE | New visible errors have English fallback and French catalog entries | Applicable per slice; placeholder consistency tested. Separate linguistic/client review not run. |
 
@@ -31,6 +31,7 @@ not applicable to these internal fixes; preserve existing bindings.
 
 ## Resume checkpoint
 
-Current slice: #17 ready to commit/push/close. Next: implement combat guard
-and clearing acceptance for #18. Read `ActionBarsManager.lua` and
-`tests/KnownIssuesTest.lua`. Update this record after each slice.
+Current slice: #18 ready to commit/push/close. Next: complete automated release
+checks and obtain a current user runtime capture for #19. Read issue #19,
+`tests/README.md` and the remaining known-defect cases. Do not convert missing
+runtime evidence into a pass or close #19 as completed prematurely.

@@ -2,26 +2,6 @@
 -- Run explicitly: lua tests/run.lua --known-issues
 local T, fixture = ...
 
-T.test("#18: clearing bars in combat preserves both slots and cursor", function()
-    local _, ns, s, load = fixture(T)
-    load("ActionBarsManager.lua")
-    s.slots[1], s.cursor, s.combat = { "spell", 42 }, { "item", 99 }, true
-    ns.ActionBarsManager:Clear("1")
-    T.equal(#s.pickups, 0)
-    T.equal(s.slots[1][2], 42)
-    T.equal(s.cursor[2], 99)
-end)
-
-T.test("Untracked: invalid bar numbers report an error without throwing", function()
-    local _, ns, s, load = fixture(T)
-    load("ActionBarsManager.lua")
-    s.slots[1] = { "spell", 42 }
-    ns.ActionBarsManager:Clear("99")
-    T.equal(#s.pickups, 0)
-    T.equal(s.slots[1][2], 42)
-    T.contains(s.output[#s.output], "99")
-end)
-
 T.test("Untracked: EventManager debug toggle works with the production logger", function()
     local _, ns, _, load = fixture(T)
     load("TaskQueue.lua")

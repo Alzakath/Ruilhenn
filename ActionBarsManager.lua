@@ -243,7 +243,7 @@ end
 
 function ActionBarsManager:GetActionBarSlots(barNumber)
     if not self.ACTION_BAR_SLOTS[barNumber] then
-        ns.Log:Error(ns.L["INVALID_ACTION_BAR"]:format(barNumber))
+        ns.Log:Error((ns.L["INVALID_ACTION_BAR"] or "Invalid action bar: %s"):format(tostring(barNumber)))
         return nil
     end
 
@@ -251,30 +251,40 @@ function ActionBarsManager:GetActionBarSlots(barNumber)
 end
 
 function ActionBarsManager:Clear(...)
-    self.restoreToken = nil
+    if InCombatLockdown() then
+        ns.Log:Error(ns.L["ACTIONBARS_CLEAR_COMBAT"] or "Cannot clear action bars in combat.")
+        return false
+    end
     local bars = {...}
     if #bars == 0 then
         -- If no bars specified, clear all
         bars = ns.Utils:Map(tostring, self.MANAGED_BARS)
     end
 
-    local totalCleared = 0
-
-    for _, barString in pairs(bars) do
-        local barNumber = tonumber(barString)
+    local ranges = {}
+    for _, barString in ipairs(bars) do
+        local barNumber = tonumber(barString) or barString
         local startSlot, endSlot = self:GetActionBarSlots(barNumber)
-        -- ns.Log:Debug("barNumber: " .. barNumber .. " => Clear from " .. startSlot .. " to " .. endSlot)
-        if startSlot then
-            for slot = startSlot, endSlot do
-                    if GetActionInfo(slot) then
-                        PickupAction(slot)
-                        ClearCursor()
-                        totalCleared = totalCleared + 1
-                    end
-
+        if not startSlot then return false end
+        ranges[#ranges + 1] = { startSlot, endSlot }
+    end
+    self.restoreToken = nil
+    local totalCleared = 0
+    ClearCursor()
+    for _, range in ipairs(ranges) do
+        for slot = range[1], range[2] do
+            if GetActionInfo(slot) then
+                PickupAction(slot)
+                ClearCursor()
+                if not GetActionInfo(slot) then
+                    totalCleared = totalCleared + 1
+                else
+                    ns.Log:Error(ns.L["ACTION_CLEARED_FAILED"]:format(slot))
+                end
             end
         end
     end
+    return totalCleared
 end
 
 ActionBarsManager.subcommands = {
