@@ -15,27 +15,60 @@ local UnitClass = UnitClass
 local NUM_CHARACTER_MACROS = Constants.MacroConsts.MAX_CHARACTER_MACROS
 local FIRST_CHARACTER_MACRO_INDEX = Constants.MacroConsts.MAX_ACCOUNT_MACROS + 1
 
-function MacroManager:ReplaceSpellIDs(macroBody)
+function MacroManager:ReplaceSpellIDs(macroBody, itemNames)
     local expandedMacroBody = macroBody:gsub("%%spell:(%d+)%%", function(spellID)
         local spellName = GetSpellName(tonumber(spellID))
         return spellName or "UnknownSpell"
     end)
 
+    local missingItem
     expandedMacroBody = expandedMacroBody:gsub("%%item:(%d+)%%", function(itemID)
-        local itemName = GetItemInfo(tonumber(itemID))
-        return itemName or "UnknownItem"
+        local id = tonumber(itemID)
+        local itemName = (itemNames and itemNames[id]) or GetItemInfo(id)
+        if not itemName then missingItem = id; return "%item:" .. itemID .. "%" end
+        return itemName
     end)
 
+    if missingItem then return nil, missingItem end
     return expandedMacroBody
 end
 
 function MacroManager:EnsureMacroExists(macro)
+    local snapshot = { name = macro.name, icon = macro.icon, body = macro.body }
+    self.pendingMacros = self.pendingMacros or {}
+    local token = {}
+    self.pendingMacros[macro.name] = token
+    if InCombatLockdown() then
+        self.pendingMacros[macro.name] = nil
+        ns.Log:Error(ns.L["ERR_IN_COMBAT"] or "Cannot manage macros in combat.")
+        return false
+    end
+    local ids, result = {}, nil
+    for id in snapshot.body:gmatch("%%item:(%d+)%%") do ids[#ids + 1] = tonumber(id) end
+    ns.ItemData:WithNames(ids, function(names, failedID)
+        if self.pendingMacros[snapshot.name] ~= token then return end
+        self.pendingMacros[snapshot.name] = nil
+        if failedID then
+            ns.Log:Error((ns.L["ITEM_DATA_FAILED"] or "Could not load item data for %s. No changes were applied."):format(failedID))
+            result = false
+            return
+        end
+        result = self:WriteMacro(snapshot, names)
+    end)
+    return result
+end
+
+function MacroManager:WriteMacro(macro, itemNames)
     if InCombatLockdown() then
         ns.Log:Error(ns.L["ERR_IN_COMBAT"] or "Cannot manage macros in combat.")
-        return
+        return false
     end
 
-    local localizedBody = self:ReplaceSpellIDs(macro.body)
+    local localizedBody, missingID = self:ReplaceSpellIDs(macro.body, itemNames)
+    if not localizedBody then
+        ns.Log:Error((ns.L["ITEM_DATA_FAILED"] or "Could not load item data for %s. No changes were applied."):format(missingID))
+        return false
+    end
     local macroIndex, freeSlot = self:FindCharacterMacro(macro.name)
 
     if macroIndex == 0 then

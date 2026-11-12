@@ -32,7 +32,6 @@ as passing tests. Move each case into the normal suite when its fix lands.
 
 | Area | Reproduced defect |
 | --- | --- |
-| #17 | Uncached item data is persisted as `UnknownItem` |
 | #18 | Bar clearing mutates action slots during combat |
 | Untracked | Invalid bars crash because `INVALID_ACTION_BAR` is absent from catalogs |
 | Untracked | EventManager debug toggle calls nonexistent `Log:Info` |
@@ -45,7 +44,7 @@ installed WoW build supplies this extension. Frame naming/protection, secure
 execution, contextual binding semantics, network responses, spell availability,
 actual rendering, and persistence across game reload/logout are not simulated.
 
-Local results (2026-11-12, Lua 5.1.5): **73 normal tests passed**; **5
+Local results (2026-11-12, Lua 5.1.5): **82 normal tests passed**; **4
 known-defect tests failed** in their intended behavior paths. Those counts
 include the existing #12 regression file as one aggregate test; it retains
 its individual assertions. `git diff --check` passed. GitHub Actions has not
@@ -59,6 +58,18 @@ throwing create/edit calls. Errors have English/French catalog entries.
 Current limits are source-verified in Retail's `MacroConstantsDocumentation.lua`
 at commit `297d7aaaa736f346b3e036f38ee088eaf7f8c07f`; in-game operation remains
 separate from mocked regression coverage.
+
+## Asynchronous item data (#17)
+
+`ItemDataTest.lua` covers cached/deferred names, whole-batch waiting, duplicate
+IDs/events, unrelated events, explicit failure, timeout, missing names,
+throwing requests, combat/spec changes and superseded operations. Macros never
+persist `UnknownItem`. Bars preflight the batch before placing any action.
+The item pickup API is now `C_Item.PickupItem`; the legacy global is absent in
+the fixture. Data loading uses `C_Item.RequestLoadItemDataByID` and the
+`ITEM_DATA_LOAD_RESULT(itemID, success)` event, verified in Retail
+`ItemDocumentation.lua` at the pinned source commit. Client cache timing and
+actual protected operations remain untested here.
 
 ## Asynchronous talent restoration (#16)
 

@@ -20,6 +20,7 @@ TaskQueue.lua
 EventManager.lua
 
 Config.lua
+ItemData.lua
 MacroManager.lua
 ActionBarsManager.lua
 BindingsManager.lua

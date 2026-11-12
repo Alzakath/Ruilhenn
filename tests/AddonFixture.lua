@@ -105,8 +105,16 @@ return function(T, locale)
         if macro then return macro.name, macro.icon, macro.body end
     end
     env.PickupMacro = function(id) pickup("macro", id) end
-    env.PickupItem = function(id) pickup("item", id) end
-    env.C_Item = { GetItemInfo = function(id) return s.items[id] end }
+    s.itemRequests = {}
+    env.C_Item = {
+        GetItemInfo = function(id) return s.items[id] end,
+        PickupItem = function(id) pickup("item", id) end,
+        RequestLoadItemDataByID = function(id) table.insert(s.itemRequests, id) end,
+    }
+    function s:resolveItem(id, name, success)
+        self.items[id] = name
+        self:fire("ITEM_DATA_LOAD_RESULT", id, success ~= false)
+    end
     env.C_Spell = {
         GetSpellInfo = function(id)
             if s.spells[id] then return { name = s.spells[id] } end
@@ -169,5 +177,6 @@ return function(T, locale)
     load("l10n/frFR.lua")
     load("Log.lua")
     load("Utils.lua")
+    load("ItemData.lua")
     return env, ns, s, load
 end

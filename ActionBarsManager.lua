@@ -11,7 +11,7 @@ local PlaceAction = PlaceAction
 local ClearCursor = ClearCursor
 local GetSpellInfo = C_Spell.GetSpellInfo
 local PickupSpell = C_Spell.PickupSpell
-local PickupItem = PickupItem
+local PickupItem = C_Item.PickupItem
 local PickupMacro = PickupMacro
 local PickupAction = PickupAction
 local GetItemInfo = C_Item.GetItemInfo
@@ -162,6 +162,7 @@ function ActionBarsManager:GetActionBarInfo(slot)
 end
 
 function ActionBarsManager:Save()
+    self.restoreToken = nil
     local actionBars = {}
     RuilhennDB.actionBars = RuilhennDB.actionBars or {}
     local _, playerClass = UnitClass("player")
@@ -206,18 +207,36 @@ function ActionBarsManager:Load()
     if RuilhennDB.actionBars[playerClass] then
         local actionBars = RuilhennDB.actionBars[playerClass][currentSpec]
         if actionBars then
-            for barNumber, actionBar in ipairs(actionBars) do
-
-                local startSlot, endSlot = self:GetActionBarSlots(barNumber)
-                for i = startSlot, endSlot do
-                    local action = actionBar[i - startSlot + 1]
-                    if action.type and action.id then
-                        -- ns.Log:Debug("Placing action at position " .. i .. " with type " .. action.type .. " and id " .. action.id)
-                        self:PlaceActionSafely(i, action.id, action.type)
-                    end
+            local token, itemIDs = {}, {}
+            self.restoreToken = token
+            for _, bar in ipairs(actionBars) do
+                for _, action in ipairs(bar) do
+                    if action.type == "item" and action.id then itemIDs[#itemIDs + 1] = action.id end
                 end
             end
-            ns.Log:Message(ns.L["ACTIONBARS_LOADED"])
+            ns.ItemData:WithNames(itemIDs, function(_, failedID)
+                if self.restoreToken ~= token then return end
+                self.restoreToken = nil
+                if failedID then
+                    ns.Log:Error((ns.L["ITEM_DATA_FAILED"] or "Could not load item data for %s. No changes were applied."):format(failedID))
+                    return
+                end
+                local _, nowClass = UnitClass("player")
+                if InCombatLockdown() or nowClass ~= playerClass or GetSpecialization() ~= currentSpec then
+                    ns.Log:Error(ns.L["ACTIONBARS_RESTORE_CANCELLED"] or "Action bar restore cancelled because combat or specialization changed. Run /ruil bars load again when ready.")
+                    return
+                end
+                for barNumber, actionBar in ipairs(actionBars) do
+                    local startSlot, endSlot = self:GetActionBarSlots(barNumber)
+                    for i = startSlot, endSlot do
+                        local action = actionBar[i - startSlot + 1]
+                        if action.type and action.id then
+                            self:PlaceActionSafely(i, action.id, action.type)
+                        end
+                    end
+                end
+                ns.Log:Message(ns.L["ACTIONBARS_LOADED"])
+            end)
         end
     end
 end
@@ -232,6 +251,7 @@ function ActionBarsManager:GetActionBarSlots(barNumber)
 end
 
 function ActionBarsManager:Clear(...)
+    self.restoreToken = nil
     local bars = {...}
     if #bars == 0 then
         -- If no bars specified, clear all

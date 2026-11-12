@@ -2,15 +2,6 @@
 -- Run explicitly: lua tests/run.lua --known-issues
 local T, fixture = ...
 
-T.test("#17: missing item data never persists UnknownItem into a macro", function()
-    local _, ns, s, load = fixture(T)
-    load("MacroManager.lua")
-    ns.MacroManager:EnsureMacroExists({ name = "item", icon = 123, body = "/use %item:99%" })
-    for _, macro in ipairs(s.created) do
-        assert(not macro[3]:find("UnknownItem", 1, true), "uncached item persisted as UnknownItem")
-    end
-end)
-
 T.test("#18: clearing bars in combat preserves both slots and cursor", function()
     local _, ns, s, load = fixture(T)
     load("ActionBarsManager.lua")

@@ -1,6 +1,7 @@
 # Ruilhenn Changelog
 
 ## Unreleased
+- Wait for uncached item data before writing macros or restoring bars; handle failure, superseded requests and unsafe delayed callbacks (#17).
 - Restore missing talent loadouts in sequence using server creation events, with rejection, timeout, combat and specialization handling (#16).
 - Search all client-defined character macro slots and report full storage or rejected writes (#15).
 - Use current Retail specialization and action-text APIs without deprecated fallback wrappers (#14).
