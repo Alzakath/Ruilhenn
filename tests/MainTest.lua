@@ -27,11 +27,23 @@ T.test("Main: TOC load order and ADDON_LOADED initialize only this addon", funct
     event("ADDON_LOADED", "Ruilhenn")
     T.equal(ns.Config.debugMode, true)
     assert(type(env.SlashCmdList.RUILHENN) == "function")
-    for _, command in ipairs({ "bars", "bindings", "macro", "talents", "debug", "help" }) do
+    for _, command in ipairs({ "bars", "bindings", "clicks", "macro", "talents", "debug", "help" }) do
         assert(type(env.RuilhennFrame.command[command]) == "function", "missing command " .. command)
     end
     T.equal(env.SLASH_RUILHENN1, "/ruil")
     T.equal(env.SLASH_RUILHENN2, "/ruilhenn")
+end)
+
+T.test("#5: slash click-casting commands work through the actual TOC and addon lifecycle", function()
+    local env, _, s, event = boot()
+    event("ADDON_LOADED", "Ruilhenn")
+    s.clickProfile = { { type = 1, actionID = 42, button = "LeftButton", modifiers = 2 } }
+    env.SlashCmdList.RUILHENN("CLICKS SAVE")
+    s.clickProfile = {}
+    env.SlashCmdList.RUILHENN("clicks load")
+    T.equal(#s.clickWrites, 1)
+    T.equal(s.clickProfile[1].actionID, 42)
+    T.equal(s.clickProfile[1].modifiers, 2)
 end)
 
 T.test("Main: slash binding commands save and restore actual API return positions", function()

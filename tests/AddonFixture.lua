@@ -6,8 +6,37 @@ return function(T, locale)
         configs = {}, exports = {}, configIDs = {}, bindingRows = {}, assignments = {},
         savedBindings = {}, requests = {}, class = "DRUID", spec = 1, specID = 102,
         player = "TestPlayer", fps = 60, combat = false, timers = {},
+        clickProfile = {}, clickWrites = {}, unbindable = {}, missingClickSpells = {},
     }
     env.RuilhennDB = {}
+    env.Enum = {
+        ClickBindingType = { None = 0, Spell = 1, Macro = 2, Interaction = 3, PetAction = 4 },
+        ClickBindingInteraction = { Target = 1, OpenContextMenu = 2 },
+        SpellBookSpellBank = { Player = 0 },
+    }
+    env.C_SpellBook = { IsSpellInSpellBook = function(id, bank, overrides)
+        assert(bank == env.Enum.SpellBookSpellBank.Player and overrides == false)
+        return not s.missingClickSpells[id]
+    end }
+    env.C_ClickBindings = {
+        GetProfileInfo = function()
+            if s.getClickError then error("Read rejected") end
+            return s.clickProfile
+        end,
+        CanSpellBeClickBound = function(id) return not s.unbindable[id] end,
+        SetProfileByInfo = function(profile)
+            if s.throwClicks then error("Write restricted") end
+            table.insert(s.clickWrites, profile)
+            if s.rejectClicks then return end
+            s.clickProfile = {}
+            for _, row in ipairs(profile) do
+                local copy = {}
+                for key, value in pairs(row) do copy[key] = value end
+                table.insert(s.clickProfile, s.reorderClicks and 1 or (#s.clickProfile + 1), copy)
+            end
+            -- The real API declares no return; readback must determine success.
+        end,
+    }
     env.SlashCmdList = {}
     env.print = function(message) table.insert(s.output, message) end
     env.GetLocale = function() return locale or "enUS" end

@@ -23,6 +23,22 @@ Share your builds across characters.
 ### 4. Macro Management
 Includes utilities to help generate and manage class-specific macros, reducing the manual effort of writing standard utility macros for every character.
 
+### 5. Native Click-Casting Profiles
+Save Blizzard's native click-casting bindings per class and specialization.
+Restore the saved profile on another character of the same class/spec, with
+macro indices resolved by name and account/character scope. Create the
+referenced macros first; missing or ambiguous macros abort restoration.
+Load replaces the entire native profile, including removing bindings absent
+from the backup. Private settings belonging to other click-casting addons
+are not included. Combat operations are refused, and restore success is
+reported only after native readback matches. Restricted client writes may
+be refused; check the reported error and current click-casting settings.
+Spells not yet learned by the destination character are skipped with a
+warning; the remaining bindings are restored and verified. The saved backup
+keeps those spells so they can be restored after learning them.
+Save or discard edits and close Blizzard's native click-casting window
+before using these commands; reopening it refreshes its staged display.
+
 ## Usage
 
 Type `/ruil` or `/ruilhenn` to access the addon.
@@ -32,6 +48,9 @@ Type `/ruil` or `/ruilhenn` to access the addon.
 - `/ruil bars load` : Restore action bars for the current spec.
 - `/ruil bindings save` : Save current key bindings.
 - `/ruil bindings load` : Restore saved key bindings.
+- `/ruil clicks save` : Save native click-casting bindings for the current class/spec.
+- `/ruil clicks load` : Replace the current native click-casting profile with its backup.
+- `/ruil clicks status` : Show read-only differences for the last attempted restore.
 - `/ruil talents save` : Save talent builds for the current spec.
 - `/ruil talents load` : Import saved talent builds.
 

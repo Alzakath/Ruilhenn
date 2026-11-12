@@ -24,6 +24,7 @@ ItemData.lua
 MacroManager.lua
 ActionBarsManager.lua
 BindingsManager.lua
+ClickCastingManager.lua
 TalentImport.lua
 TalentManager.lua
 

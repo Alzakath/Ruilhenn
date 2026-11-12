@@ -33,7 +33,7 @@ test preserves nil payload positions. Frame naming/protection, secure
 execution, network delivery, actual rendering, spell availability and game
 persistence are not certified by these mocks.
 
-Local results (2026-11-12, Lua 5.1.5): **92 normal tests passed**, no remaining
+Local results (2026-11-12, Lua 5.1.5): **118 normal tests passed**, no remaining
 opt-in defect cases, and `git diff --check` passed. The #12 file remains one
 aggregate case containing its original assertions. Delivery and runtime
 evidence are recorded in `docs/RETAIL-COMPATIBILITY.md`.
@@ -57,6 +57,17 @@ macro limit, required API presence, fallback setting and unresolved template
 spell metadata in `RuilhennDB.validation`. It does not modify bindings, bars,
 macros, talents or CVars and explicitly does not mark feature tests passed.
 Use `docs/RETAIL-VALIDATION.md` for the remaining actual-client checklist.
+
+## Native click-casting profiles (#5)
+
+`ClickCastingTest.lua` plus the main slash-command integration case exercise
+all supported record types/modifiers, class/spec isolation, empty and full
+replacement, deep-copy persistence, macro reindexing/scope/ambiguity, missing
+actions, malformed storage, combat, missing APIs and read/write restrictions.
+The setter returns nil in the success mock, matching its declared contract;
+native readback must match the original intended profile before success.
+Mocks do not prove actual addon write permission. The source pin, requirement
+matrix and pending live-client checks are in `docs/CLICK-CASTING.md`.
 
 ## Macro capacity (#15)
 

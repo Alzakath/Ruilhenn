@@ -14,6 +14,7 @@ def artifact_files(root):
     assert scripts[0] == "Core.lua" and scripts[-1] == "Main.lua", "invalid entrypoint order"
     for before, after in [("ItemData.lua", "MacroManager.lua"), ("ItemData.lua", "ActionBarsManager.lua"),
                           ("TalentImport.lua", "TalentManager.lua"), ("Validation.lua", "Main.lua"),
+                          ("ClickCastingManager.lua", "Main.lua"),
                           ("l10n/enUS.lua", "l10n/frFR.lua"), ("l10n/frFR.lua", "MacroManager.lua")]:
         assert scripts.index(before) < scripts.index(after), f"{before} must load before {after}"
     assert any(line.startswith("## SavedVariables:") and "RuilhennDB" in line for line in lines)

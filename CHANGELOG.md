@@ -1,6 +1,8 @@
 # Ruilhenn Changelog
 
 ## Unreleased
+- Skip unlearned click-casting spells with a warning when restoring on another character; preserve the full backup and verify the remaining bindings.
+- Add class/spec native click-casting profile save/load, macro remapping and verified restore results (#5).
 - Add client/API diagnostics and release validation; repair stock Lua 5.1 event dispatch and English locale fallback found during validation (#19).
 - Refuse bar clearing during combat before touching the cursor; validate bar arguments and report rejected pickups (#18).
 - Wait for uncached item data before writing macros or restoring bars; handle failure, superseded requests and unsafe delayed callbacks (#17).

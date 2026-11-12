@@ -8,6 +8,8 @@ local required = {
     "C_Item.GetItemInfo", "C_Item.PickupItem", "C_Item.RequestLoadItemDataByID",
     "C_Traits.GetConfigInfo", "C_Traits.GetNodeInfo", "C_Traits.GenerateImportString",
     "C_ClassTalents.RequestNewConfig", "C_ClassTalents.ImportLoadout", "C_Timer.NewTimer",
+    "C_ClickBindings.GetProfileInfo", "C_ClickBindings.SetProfileByInfo", "C_ClickBindings.CanSpellBeClickBound",
+    "C_SpellBook.IsSpellInSpellBook",
 }
 local function callable(name)
     local value = _G
