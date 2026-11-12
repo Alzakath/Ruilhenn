@@ -3,6 +3,7 @@ return function(T, fixture, locale)
     local env, ns, s, load = fixture(T, locale)
     env.Enum = { TraitNodeType = { Single = 0, Selection = 1, Tiered = 2, SubTreeSelection = 3 } }
     local types = env.Enum.TraitNodeType
+    env.Enum.TraitConfigType = { Combat = 1 }
     s.treeHash = {}
     for i = 1, 16 do s.treeHash[i] = 9 end
     s.nodes = {

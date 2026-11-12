@@ -2,18 +2,6 @@
 -- Run explicitly: lua tests/run.lua --known-issues
 local T, fixture = ...
 
-T.test("#16: rejected loadout creation does not report a pending successful request", function()
-    local talentFixture = dofile("tests/TalentFixture.lua")
-    local _, ns, s = talentFixture(T, fixture)
-    s.configIDs[102] = {}
-    s.rejectCreation = true
-    s:backup()
-    ns.TalentManager:Load()
-    T.equal(#s.requests, 1)
-    assert(not table.concat(s.output, "\n"):find("Requested creation", 1, true),
-        "rejected creation reported as requested")
-end)
-
 T.test("#17: missing item data never persists UnknownItem into a macro", function()
     local _, ns, s, load = fixture(T)
     load("MacroManager.lua")

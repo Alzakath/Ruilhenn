@@ -62,11 +62,120 @@ function TalentManager:GetConfigMap(specID)
     return configMap
 end
 
+function TalentManager:StopRestore()
+    local state = self.restore
+    self.restore = nil
+    if state and state.timer then state.timer:Cancel() end
+    if self.restoreFrame then self.restoreFrame:UnregisterAllEvents() end
+end
+
+function TalentManager:ImportSavedBuild(build, configID, specID)
+    local entries, reason = ns.TalentImport:Decode(build.importString, configID, specID)
+    if entries then
+        local ok, success, importError = pcall(C_ClassTalents.ImportLoadout,
+            configID, entries, build.name, build.importString)
+        if ok and success then
+            if build.usesSharedActionBars ~= nil then
+                C_ClassTalents.SetUsesSharedActionBars(configID, build.usesSharedActionBars)
+            end
+            ns.Log:Message((L["TALENT_IMPORTED"] or "Imported talent build: %s"):format(build.name))
+            return true
+        end
+        reason = ok and importError or success
+    end
+    if not reason or reason == "" then
+        reason = L["TALENT_IMPORT_REJECTED"] or "The game rejected the talent import."
+    end
+    ns.Log:Error((L["TALENT_IMPORT_ERROR"] or "Could not import talent build %s: %s"):format(build.name, tostring(reason)))
+    return false
+end
+
+function TalentManager:ContinueRestore(state)
+    if self.restore ~= state then return end
+    if InCombatLockdown() or GetSpecialization() ~= state.specIndex then
+        self:StopRestore()
+        ns.Log:Error(L["TALENT_RESTORE_CANCELLED"] or "Talent restore stopped because combat or specialization changed. Run /ruil talents load again when ready.")
+        return
+    end
+    while state.index <= #state.builds do
+        if self.restore ~= state then return end
+        local build = state.builds[state.index]
+        state.index = state.index + 1
+        local map = self:GetConfigMap(state.specID)
+        local configID = map[build.name]
+        local entries, reason = ns.TalentImport:Decode(build.importString,
+            configID or C_ClassTalents.GetActiveConfigID(), state.specID)
+        if not entries or type(build.name) ~= "string" or build.name == "" then
+            state.failed = state.failed + 1
+            ns.Log:Error((L["TALENT_IMPORT_ERROR"] or "Could not import talent build %s: %s"):format(
+                tostring(build.name or ""), reason or L["TALENT_STRING_INVALID"] or "Invalid talent build."))
+        elseif configID then
+            if self:ImportSavedBuild(build, configID, state.specID) then
+                state.imported = state.imported + 1
+            else
+                state.failed = state.failed + 1
+            end
+        else
+            -- Install the waiter before the request; never infer synchronous creation.
+            state.waiting = build
+            state.before = {}
+            for _, id in pairs(map) do state.before[id] = true end
+            local activeID = C_ClassTalents.GetActiveConfigID()
+            if activeID then state.before[activeID] = true end
+            local ok, accepted = pcall(C_ClassTalents.RequestNewConfig, build.name)
+            if ok and accepted then
+                ns.Log:Message((L["TALENT_CREATE_WAIT"] or "Waiting for creation of talent loadout %s."):format(build.name))
+                if self.restore == state and state.waiting == build then
+                    state.timer = C_Timer.NewTimer(15, function()
+                        if self.restore == state and state.waiting == build then
+                            self:StopRestore()
+                            ns.Log:Error((L["TALENT_CREATE_TIMEOUT"] or "Timed out waiting for talent loadout %s. Check your loadouts before retrying."):format(build.name))
+                        end
+                    end)
+                end
+                return
+            end
+            state.waiting = nil
+            state.failed = state.failed + 1
+            ns.Log:Error((L["TALENT_CREATE_REJECTED"] or "The game refused to create talent loadout %s."):format(build.name))
+        end
+    end
+    self:StopRestore()
+    ns.Log:Message((L["TALENT_RESTORE_COMPLETE"] or "Talent restore finished: %d imported, %d failed."):format(state.imported, state.failed))
+end
+
+function TalentManager:OnRestoreEvent(event, info)
+    local state = self.restore
+    if not state then return end
+    if InCombatLockdown() or GetSpecialization() ~= state.specIndex then
+        self:ContinueRestore(state)
+        return
+    end
+    if event ~= "TRAIT_CONFIG_CREATED" or not state.waiting or type(info) ~= "table" then return end
+    local build = state.waiting
+    if info.type ~= Enum.TraitConfigType.Combat or info.name ~= build.name or
+        not info.ID or state.before[info.ID] then return end
+    local actual = C_Traits.GetConfigInfo(info.ID)
+    if not actual or actual.name ~= build.name then return end
+    if state.timer then state.timer:Cancel(); state.timer = nil end
+    state.waiting = nil
+    if self:ImportSavedBuild(build, info.ID, state.specID) then
+        state.imported = state.imported + 1
+    else
+        state.failed = state.failed + 1
+    end
+    self:ContinueRestore(state)
+end
+
 function TalentManager:Load()
     ns.Log:Debug("TalentManager:Load() started.")
 
     if InCombatLockdown() then
         ns.Log:Error(L["TALENT_IMPORT_COMBAT"] or "Cannot import talent builds in combat.")
+        return
+    end
+    if self.restore then
+        ns.Log:Error(L["TALENT_RESTORE_BUSY"] or "A talent restore is already running. Wait for it to finish.")
         return
     end
 
@@ -101,60 +210,21 @@ function TalentManager:Load()
     local savedBuilds = RuilhennDB.talents[playerClass][specIndex]
     ns.Log:Debug(string.format("Found %d saved builds.", #savedBuilds))
     
-    -- Get current configs to avoid duplicates
-    local configMap = TalentManager:GetConfigMap(specID)
-    
-    local importedCount = 0
-    local creationRequested = false
+    local state = { builds = {}, index = 1, imported = 0, failed = 0, specIndex = specIndex, specID = specID }
     for _, build in ipairs(savedBuilds) do
-        
-        local configID = configMap[build.name]
-        -- Validate before requesting a new loadout or changing an existing one.
-        local decodeConfigID = configID or C_ClassTalents.GetActiveConfigID()
-        local entries, decodeError = ns.TalentImport:Decode(build.importString, decodeConfigID, specID)
-
-        ns.Log:Debug(string.format("Checking build '%s' (configID: %s)", tostring(build.name), tostring(configID)))
-        
-        if not entries or type(build.name) ~= "string" or build.name == "" then
-            ns.Log:Error((L["TALENT_IMPORT_ERROR"] or "Could not import talent build %s: %s"):format(
-                tostring(build.name or ""), decodeError or L["TALENT_STRING_INVALID"] or "Invalid talent build."))
-        else
-            if not configID then
-                -- Creation is asynchronous; completion/retry handling is tracked in #16.
-                if C_ClassTalents.RequestNewConfig then
-                    C_ClassTalents.RequestNewConfig(build.name)
-                    ns.Log:Message((L["TALENT_CREATION_REQUESTED"] or "Requested creation of loadout '%s'. Please wait a moment and try Load again."):format(build.name))
-                    creationRequested = true
-
-                    configMap = TalentManager:GetConfigMap(specID)
-                    configID = configMap[build.name]
-                else
-                    ns.Log:Error(L["TALENT_CREATE_FAILED"] or "Cannot create config (API missing).")
-                end
-            end
-
-            if configID then
-                local success, importError = C_ClassTalents.ImportLoadout(configID, entries, build.name, build.importString)
-                if success then
-                    if build.usesSharedActionBars ~= nil then
-                        C_ClassTalents.SetUsesSharedActionBars(configID, build.usesSharedActionBars)
-                    end
-                    importedCount = importedCount + 1
-                    ns.Log:Message((L["TALENT_IMPORTED"] or "Imported talent build: %s"):format(build.name))
-                else
-                    if importError == "" then importError = nil end
-                    ns.Log:Error((L["TALENT_IMPORT_ERROR"] or "Could not import talent build %s: %s"):format(
-                        build.name, importError or L["TALENT_IMPORT_REJECTED"] or "The game rejected the talent import."))
-                end
-            end
-        end
+        state.builds[#state.builds + 1] = {
+            name = build.name, importString = build.importString, usesSharedActionBars = build.usesSharedActionBars,
+        }
     end
-    
-    if importedCount > 0 or creationRequested then
-        ns.Log:Message(L["TALENTS_LOADED"] or "Talent load process complete.")
-    else
-        ns.Log:Message(L["NO_NEW_TALENTS"] or "No new talent builds to import.")
+    if not self.restoreFrame then
+        self.restoreFrame = CreateFrame("Frame")
+        self.restoreFrame:SetScript("OnEvent", function(_, event, info) self:OnRestoreEvent(event, info) end)
     end
+    self.restore = state
+    self.restoreFrame:RegisterEvent("TRAIT_CONFIG_CREATED")
+    self.restoreFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+    self.restoreFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+    self:ContinueRestore(state)
 end
 
 TalentManager.subcommands = {

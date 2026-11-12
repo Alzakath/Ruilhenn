@@ -5,7 +5,7 @@ return function(T, locale)
         created = {}, edited = {}, placements = {}, pickups = {}, imports = {},
         configs = {}, exports = {}, configIDs = {}, bindingRows = {}, assignments = {},
         savedBindings = {}, requests = {}, class = "DRUID", spec = 1, specID = 102,
-        player = "TestPlayer", fps = 60, combat = false,
+        player = "TestPlayer", fps = 60, combat = false, timers = {},
     }
     env.RuilhennDB = {}
     env.SlashCmdList = {}
@@ -28,9 +28,26 @@ return function(T, locale)
         local frame = { scripts = {}, events = {} }
         function frame:SetScript(script, callback) self.scripts[script] = callback end
         function frame:RegisterEvent(event) self.events[event] = true end
+        function frame:UnregisterAllEvents() self.events = {} end
         table.insert(s.frames, frame)
         if name then env[name] = frame end
         return frame
+    end
+    env.C_Timer = { NewTimer = function(_, callback)
+        local timer = { callback = callback }
+        function timer:Cancel() self.cancelled = true end
+        table.insert(s.timers, timer)
+        return timer
+    end }
+    function s:fire(event, ...)
+        for _, frame in ipairs(self.frames) do
+            if frame.events[event] and frame.scripts.OnEvent then frame.scripts.OnEvent(frame, event, ...) end
+        end
+    end
+    function s:expireTimers()
+        local timers = self.timers
+        self.timers = {}
+        for _, timer in ipairs(timers) do if not timer.cancelled then timer.callback() end end
     end
     function s:tick()
         local count = #self.frames

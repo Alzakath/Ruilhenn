@@ -32,7 +32,6 @@ as passing tests. Move each case into the normal suite when its fix lands.
 
 | Area | Reproduced defect |
 | --- | --- |
-| #16 | Failed loadout creation is announced as requested |
 | #17 | Uncached item data is persisted as `UnknownItem` |
 | #18 | Bar clearing mutates action slots during combat |
 | Untracked | Invalid bars crash because `INVALID_ACTION_BAR` is absent from catalogs |
@@ -46,7 +45,7 @@ installed WoW build supplies this extension. Frame naming/protection, secure
 execution, contextual binding semantics, network responses, spell availability,
 actual rendering, and persistence across game reload/logout are not simulated.
 
-Local results (2026-11-12, Lua 5.1.5): **67 normal tests passed**; **6
+Local results (2026-11-12, Lua 5.1.5): **73 normal tests passed**; **5
 known-defect tests failed** in their intended behavior paths. Those counts
 include the existing #12 regression file as one aggregate test; it retains
 its individual assertions. `git diff --check` passed. GitHub Actions has not
@@ -60,6 +59,22 @@ throwing create/edit calls. Errors have English/French catalog entries.
 Current limits are source-verified in Retail's `MacroConstantsDocumentation.lua`
 at commit `297d7aaaa736f346b3e036f38ee088eaf7f8c07f`; in-game operation remains
 separate from mocked regression coverage.
+
+## Asynchronous talent restoration (#16)
+
+`TalentAsyncTest.lua` covers multiple missing loadouts in order, duplicate
+commands, unrelated/stale/duplicate server events, rejected and throwing
+requests, combat/spec cancellation, timeout cleanup and late callbacks.
+The manager waits for a matching `TRAIT_CONFIG_CREATED(configInfo)` combat
+configuration, validates it, imports, then moves on. State is copied from the
+backup, events/timers are cleaned up, and no completion is announced while
+waiting. A timed-out creation can still arrive from the server; the error
+asks users to inspect their loadouts before retrying.
+
+Contracts: Retail `SharedTraitsDocumentation.lua` event payload and
+`ClassTalentsDocumentation.lua` request return at source pin
+`297d7aaaa736f346b3e036f38ee088eaf7f8c07f`. Native delivery and server timing
+remain actual-client checks under #19.
 
 ## Retail API wrapper regression checks (#14)
 
@@ -109,7 +124,7 @@ commit `297d7aaaa736f346b3e036f38ee088eaf7f8c07f` (12.1.5.70783):
 
 In-game round trips and legal node combinations still need client validation;
 the game remains responsible for rejecting combinations that violate talent
-prerequisites. New-loadout asynchronous completion remains tracked in #16.
+prerequisites. Asynchronous creation is covered by the #16 regression tests.
 English/French messages have formatting coverage but no separate linguistic
 or in-game review. On a disposable profile, save a build including hero and
 choice talents, restore it, compare the resulting export, and verify that
