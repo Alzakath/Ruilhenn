@@ -15,8 +15,8 @@ local PickupItem = PickupItem
 local PickupMacro = PickupMacro
 local PickupAction = PickupAction
 local GetItemInfo = C_Item.GetItemInfo
-local GetSpecialization = GetSpecialization
-local GetActionText = GetActionText
+local GetSpecialization = C_SpecializationInfo.GetSpecialization
+local GetActionText = C_ActionBar.GetActionText
 
 local GetMountInfoByID = C_MountJournal.GetMountInfoByID
 local GetMountIDs = C_MountJournal.GetMountIDs

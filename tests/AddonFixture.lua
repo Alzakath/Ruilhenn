@@ -14,8 +14,14 @@ return function(T, locale)
     env.debugprofilestop = function() return 10 end
     env.UnitName = function() return s.player end
     env.UnitClass = function() return "LocalizedClass", s.class end
-    env.GetSpecialization = function() return s.spec end
-    env.GetSpecializationInfo = function() return s.specID end
+    -- Deprecated global wrappers are deliberately absent in every fixture.
+    env.C_SpecializationInfo = {
+        GetSpecialization = function() return s.spec end,
+        GetSpecializationInfo = function(specIndex)
+            assert(specIndex == s.spec, "specialization index expected")
+            return s.specID, "LocalizedSpec", "Description", 123, "DAMAGER"
+        end,
+    }
     env.InCombatLockdown = function() return s.combat end
     env.GetFramerate = function() return s.fps end
     env.CreateFrame = function(_, name)
@@ -65,11 +71,13 @@ return function(T, locale)
         local action = s.slots[slot]
         if action then return unpack(action, 1, 3) end
     end
-    env.GetActionText = function(slot)
-        local action = s.slots[slot]
-        local macro = action and s.macros[action[2]]
-        return macro and macro.name
-    end
+    env.C_ActionBar = {
+        GetActionText = function(slot)
+            local action = s.slots[slot]
+            local macro = action and s.macros[action[2]]
+            return macro and macro.name
+        end,
+    }
     env.GetMacroInfo = function(id)
         local macro = s.macros[id]
         if not macro and type(id) == "string" then

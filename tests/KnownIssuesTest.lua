@@ -2,14 +2,6 @@
 -- Run explicitly: lua tests/run.lua --known-issues
 local T, fixture = ...
 
-T.test("#14: action snapshots do not require deprecated specialization globals", function()
-    local env, ns, _, load = fixture(T)
-    env.GetSpecialization = nil
-    env.C_SpecializationInfo = { GetSpecialization = function() return 1 end }
-    load("ActionBarsManager.lua")
-    ns.ActionBarsManager:Save()
-end)
-
 T.test("#15: macros in the last character slot are updated without duplication", function()
     local _, ns, s, load = fixture(T)
     load("MacroManager.lua")

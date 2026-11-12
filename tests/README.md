@@ -32,7 +32,6 @@ as passing tests. Move each case into the normal suite when its fix lands.
 
 | Area | Reproduced defect |
 | --- | --- |
-| #14 | Action snapshots require deprecated specialization globals |
 | #15 | Character macros in slot 150 are missed |
 | #16 | Failed loadout creation is announced as requested |
 | #17 | Uncached item data is persisted as `UnknownItem` |
@@ -48,11 +47,36 @@ installed WoW build supplies this extension. Frame naming/protection, secure
 execution, contextual binding semantics, network responses, spell availability,
 actual rendering, and persistence across game reload/logout are not simulated.
 
-Local results (2026-11-11, Lua 5.1.5): **60 normal tests passed**; all **8
+Local results (2026-11-12, Lua 5.1.5): **63 normal tests passed**; all **7
 known-defect tests failed** in their intended behavior paths. Those counts
 include the existing #12 regression file as one aggregate test; it retains
 its individual assertions. `git diff --check` passed. GitHub Actions has not
 run for these unpushed changes.
+
+## Retail API wrapper regression checks (#14)
+
+Action bars now use `C_SpecializationInfo.GetSpecialization` and
+`C_ActionBar.GetActionText`; talents use the namespaced specialization and
+specialization-info functions. Every addon fixture omits the three deprecated
+globals, so the full normal suite runs without those fallback wrappers.
+`RetailAPITest.lua` adds explicit checks for spell/macro bar round trips,
+macro names surviving changed macro indices, unavailable action text, and
+talent save/import with a non-default specialization index and distinct spec
+ID. The specialization-info mock preserves its tuple return contract.
+
+Source evidence was rechecked on 2026-11-12 against live Retail commit
+`297d7aaaa736f346b3e036f38ee088eaf7f8c07f` (12.1.5.70783):
+[specialization contracts](https://github.com/Gethe/wow-ui-source/blob/297d7aaaa736f346b3e036f38ee088eaf7f8c07f/Interface/AddOns/Blizzard_APIDocumentationGenerated/SpecializationInfoDocumentation.lua#L212),
+[action-text contract](https://github.com/Gethe/wow-ui-source/blob/297d7aaaa736f346b3e036f38ee088eaf7f8c07f/Interface/AddOns/Blizzard_APIDocumentationGenerated/ActionBarFrameDocumentation.lua#L244).
+No new dependency, setting, visible UI, or localized message was introduced.
+
+The #14 in-game checks remain not run for this change: on a backed-up test
+profile with deprecated fallbacks disabled, reload and verify bar save/load
+with a macro, then talent save/load on an existing matching loadout. Record
+the client build and original fallback setting, and restore that setting
+after testing. Unit mocks do not establish permitted operation in the game.
+Delivery and automated validation are tracked in issue #14; actual-client
+validation remains outstanding.
 
 ## Talent import regression checks (#13)
 

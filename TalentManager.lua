@@ -5,8 +5,8 @@ local TalentManager = ns.TalentManager
 local Commands = ns.Commands
 
 -- WoW API
-local GetSpecialization = GetSpecialization
-local GetSpecializationInfo = GetSpecializationInfo
+local GetSpecialization = C_SpecializationInfo.GetSpecialization
+local GetSpecializationInfo = C_SpecializationInfo.GetSpecializationInfo
 local UnitClass = UnitClass
 local C_ClassTalents = C_ClassTalents
 local C_Traits = C_Traits
