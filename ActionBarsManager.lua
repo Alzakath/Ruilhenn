@@ -81,7 +81,7 @@ end
 function ActionBarsManager:PickupActionMount(actionId)
     -- Handle mount placement
     ns.Log:Warning(ns.L["MOUNT_CANNOT_BE_PLACED"])
-    return true, ""
+    return false, ""
 end
 
 function ActionBarsManager:PlaceActionSafely(slot, actionId, actionType)
@@ -96,8 +96,6 @@ function ActionBarsManager:PlaceActionSafely(slot, actionId, actionType)
     local success = false
     local actionName = ""
 
-    -- ns.Log:Debug(("PlaceActionSafely => slot: %s, actionId: %s, actionType: %s"):format(slot, actionId, actionType))
-    
     if actionType == "spell" then
 
         success, actionName = self:PickupActionSpell(actionId)
@@ -137,18 +135,13 @@ function ActionBarsManager:PlaceActionSafely(slot, actionId, actionType)
 end
 
 function ActionBarsManager:GetMacroInfoFromAction(slot)
-    local macroInfo = GetActionInfo(slot)
     local macroName = GetActionText(slot)
-    ns.Log:Debug(("GetMacroInfoFromAction for slot: %s => macroInfo: %s, macroName: %s"):format(slot, ns.Utils:DumpTable(macroInfo), macroName or ""))
     return GetMacroInfo(macroName), macroName
 end
 
 function ActionBarsManager:GetActionBarInfo(slot)
     local type, id, subType = GetActionInfo(slot)
-    -- properly action infos for macros, mounts and critters
-    -- if type then
-    --     ns.Log:Debug(("GetActionBarInfo => type: %s, id: %s, subType: %s"):format(type or "", id or "", subType or ""))
-    -- end
+    -- Properly resolve macro names, mounts and critters.
     if type == "macro" then
         local macroInfo, macroName = self:GetMacroInfoFromAction(slot)
         if macroInfo then
@@ -171,7 +164,6 @@ function ActionBarsManager:Save()
     ns.Log:Message(ns.L["CLASS_DETECTED"]:format(playerClass))
     for _, barNumber in pairs(self.MANAGED_BARS) do
         local startSlot, endSlot = self:GetActionBarSlots(barNumber)
-        -- ns.Log:Debug("barNumber: " .. barNumber .. " => Save from " .. startSlot .. " to " .. endSlot)
         local actions = {}
         for i = startSlot, endSlot do
             local actionBarInfo = self:GetActionBarInfo(i)
@@ -189,6 +181,7 @@ function ActionBarsManager:Save()
     end
 
     RuilhennDB.actionBars[playerClass][currentSpec] = actionBars
+    if ns.TemplateStore then ns.TemplateStore:Record("bars") end
     ns.Log:Message(ns.L["ACTIONBARS_SAVED"])
 end
 
@@ -226,16 +219,33 @@ function ActionBarsManager:Load()
                     ns.Log:Error(ns.L["ACTIONBARS_RESTORE_CANCELLED"] or "Action bar restore cancelled because combat or specialization changed. Run /ruil bars load again when ready.")
                     return
                 end
+                local restored, skipped, failed = 0, 0, 0
                 for barNumber, actionBar in ipairs(actionBars) do
                     local startSlot, endSlot = self:GetActionBarSlots(barNumber)
                     for i = startSlot, endSlot do
                         local action = actionBar[i - startSlot + 1]
                         if action.type and action.id then
-                            self:PlaceActionSafely(i, action.id, action.type)
+                            local skipKey
+                            if action.type == "summonmount" then
+                                skipKey = "ACTIONBARS_SKIP_MOUNT"
+                            elseif action.type == "macro" and not GetMacroInfo(action.id) then
+                                skipKey = "ACTIONBARS_SKIP_MACRO"
+                            elseif action.type == "spell" and C_SpellBook and C_SpellBook.IsSpellInSpellBook and
+                                not C_SpellBook.IsSpellInSpellBook(action.id, Enum.SpellBookSpellBank.Player, true) then
+                                skipKey = "ACTIONBARS_SKIP_SPELL"
+                            end
+                            if skipKey then
+                                skipped = skipped + 1
+                                ns.Log:Warning(ns.L[skipKey]:format(tostring(action.id), i))
+                            elseif self:PlaceActionSafely(i, action.id, action.type) then
+                                restored = restored + 1
+                            else failed = failed + 1 end
                         end
                     end
                 end
-                ns.Log:Message(ns.L["ACTIONBARS_LOADED"])
+                if skipped > 0 or failed > 0 then
+                    ns.Log:Warning(ns.L.ACTIONBARS_PARTIAL:format(restored, skipped, failed))
+                else ns.Log:Message(ns.L.ACTIONBARS_COMPLETE:format(restored)) end
             end)
         end
     end

@@ -151,6 +151,7 @@ T.test("EventManager: callbacks receive payloads in order and errors are isolate
     load("TaskQueue.lua")
     load("EventManager.lua")
     local manager, received = ns.EventManager:New(), {}
+    ns.Config.debugMode = true
     manager:RegisterEvent("READY", function(a, b)
         table.insert(received, a .. b)
         error("callback failure")
@@ -163,4 +164,6 @@ T.test("EventManager: callbacks receive payloads in order and errors are isolate
     manager:FireEvent("UNREGISTERED")
     s:drain()
     T.equal(#received, 2)
+    T.equal(#s.output, 1, "event registration and dispatch tracing should remain quiet in debug mode")
+    T.contains(s.output[1], "callback failure", "callback errors should remain visible")
 end)

@@ -1,5 +1,36 @@
 local T, fixture = ...
 
+T.test("ActionBars: partial restore skips missing dependencies and preserves their slots and backup", function()
+    local env, ns, s, load = fixture(T)
+    load("ActionBarsManager.lua")
+    s.spells[42], s.spells[99] = "Available", "Other race spell"
+    s.macros[121] = { name = "Utility", body = "/say test" }
+    s.slots = { { "spell", 42 }, { "macro", 121 }, { "spell", 99 }, { "summonmount", 460 } }
+    ns.ActionBarsManager:Save()
+    local saved = env.RuilhennDB.actionBars.DRUID[1]
+    s.macros[121], s.missingClickSpells[99] = nil, true
+    s.slots = { [2] = { "spell", 88 }, [3] = { "spell", 89 }, [4] = { "spell", 90 } }
+    ns.ActionBarsManager:Load()
+    T.equal(#s.placements, 1)
+    T.equal(s.slots[1][2], 42)
+    T.equal(s.slots[2][2], 88)
+    T.equal(s.slots[3][2], 89)
+    T.equal(s.slots[4][2], 90)
+    T.equal(saved[1][2].id, "Utility")
+    T.equal(saved[1][3].id, 99)
+    T.contains(s.output[#s.output], "1 placed, 3 skipped, 0 failed")
+end)
+
+T.test("ActionBars: rejected writes are counted as failures rather than reported as loaded", function()
+    local _, ns, s, load = fixture(T)
+    load("ActionBarsManager.lua")
+    s.spells[42], s.slots[1] = "Spell", { "spell", 42 }
+    ns.ActionBarsManager:Save()
+    s.slots, s.rejectPlacement = {}, true
+    ns.ActionBarsManager:Load()
+    T.contains(s.output[#s.output], "0 placed, 0 skipped, 1 failed")
+end)
+
 T.test("ActionBars: spells, items and named macros survive a save/load round trip", function()
     local env, ns, s, load = fixture(T)
     load("ActionBarsManager.lua")

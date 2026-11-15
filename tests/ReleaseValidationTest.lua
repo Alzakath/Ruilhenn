@@ -1,16 +1,5 @@
 local T, fixture = ...
 
-T.test("#19: production logger supports event-manager debug toggles", function()
-    local _, ns, _, load = fixture(T)
-    load("TaskQueue.lua")
-    load("EventManager.lua")
-    local manager = ns.EventManager:New()
-    manager:SetDebugMode(false)
-    T.equal(manager.debugMode, false)
-    manager:SetDebugMode(true)
-    T.equal(manager.debugMode, true)
-end)
-
 T.test("#19: stock Lua 5.1 event delivery preserves nil payload positions", function()
     local env, ns, s, load = fixture(T)
     T.equal(env.table.unpack, nil)

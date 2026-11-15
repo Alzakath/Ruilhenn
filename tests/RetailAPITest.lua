@@ -50,6 +50,7 @@ T.test("#14: talent save/load uses namespaced spec index and spec ID contracts",
     ns.TalentManager:Save()
     T.equal(env.RuilhennDB.talents.DRUID[2][1].importString, text)
     T.equal(env.RuilhennDB.talents.DRUID[1], nil)
+    s.configIDs[103] = {}
     ns.TalentManager:Load()
     T.equal(#s.imports, 1)
     T.equal(s.imports[1][1], 10)

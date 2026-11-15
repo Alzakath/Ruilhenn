@@ -12,11 +12,6 @@ function Config:LoadSavedVariables()
     
     self.debugMode = settings.debugMode or false
     
-    if settings then
-        ns.Log:Debug(ns.L["SETTINGS_FOUND"]:format(playerName))
-    else
-        ns.Log:Debug(ns.L["SETTINGS_NOT_FOUND"]:format(playerName))
-    end
 end
 
 function Config:SaveSetting(key, value)

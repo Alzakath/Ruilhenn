@@ -43,7 +43,69 @@ before using these commands; reopening it refreshes its staged display.
 
 Type `/ruil` or `/ruilhenn` to access the addon.
 
+### Template browser
+
+`/ruil` (with no arguments) or `/ruil ui` opens the shared template browser.
+You can also open it from **Settings → AddOns → Ruilhenn**.
+
+The list shows only templates for your current character’s class. Select a
+specialization, then Talents, Action bars, Key bindings or Click
+casting. Inspect the saved contents and source before choosing **Save as
+template** or **Load category**. Both actions ask for confirmation. Different
+specializations can use different source characters: for example, Guardian
+from one druid and Feral from another. Saving updates only the selected
+category, and loading requires the matching active class/spec. Browsing
+remains available during combat; save/load are disabled.
+
+Overview shows how many of the four categories are saved and each category’s
+own provenance. The active specialization is labeled separately from the
+template being viewed. Click casting lists Input, Action and Availability,
+with green/amber text statuses and available/skipped counts. Missing backups
+offer a first-save action; saved-but-empty snapshots are identified separately.
+
+Talent rows show whether a named loadout already exists. Select one to copy
+its export or load it individually; otherwise Load imports all missing saved
+loadouts without activating one. Action bar loading fills saved placements;
+it does not clear empty saved slots. Click-casting loading replaces the native
+profile and warns about skipped unlearned spells. Key-binding loading applies
+saved keys to this character's own binding set and leaves character-specific
+mode active, regardless of whether the source was saved from account or
+character bindings. Assignments on imported keys may be reassigned; other
+character keys are kept. Account bindings are not saved. **Copy account
+bindings…** is a separate confirmed utility that replaces this character's set
+with the actual current account bindings, removing character-only keys. It is a
+one-time copy; later changes remain separate. The native key-binding editor
+must be closed first. The legacy `/ruil bindings load` command keeps its
+existing saved-scope behavior.
+
+Action-bar restore skips missing macros, unlearned spells and unsupported
+mount entries, keeps their current slots, and reports placed/skipped/failed
+totals. Create any required named macros on the destination before retrying.
+Talent imports wait for native creation/population; existing names stay
+unchanged. Accepted imports are not retried automatically after a timeout.
+Before importing, apply or discard pending edits in Blizzard’s talent window
+and close that window. Its open editor can automatically select newly created
+loadouts. Ruilhenn saves loadouts without activating them or resolving drafts
+on the player’s behalf. An import can generate its own temporary staged
+state. After the saved loadout is confirmed, Ruilhenn removes that scratch
+state only when it still matches the active snapshot captured immediately
+after the import call, with a clean config beforehand. It verifies the original active talents and new saved
+loadout are preserved; uncertain cleanup stops the batch.
+
+Each new save records its source character/realm and date. Existing backups
+remain available with an unknown source until saved again. New key-binding
+saves also create an independent class/spec snapshot; the old shared backup
+remains available through `/ruil bindings load`. Unscoped backups are excluded
+from the browser because their class/spec is unknown. Original slash save/load
+commands remain usable.
+
+When EllesmereUI and its third-party skinning component are enabled, the
+browser uses the public Skinning API and follows the user's window theme.
+Without it, a standalone window remains available. EUI can control Ruilhenn
+skinning under Blizzard Skins+ → Window Skins → Third-Party Addons.
+
 - `/ruil help` : List all available commands.
+- `/ruil ui` : Open the shared class/spec template browser.
 - `/ruil bars save` : Save action bars for the current spec.
 - `/ruil bars load` : Restore action bars for the current spec.
 - `/ruil bindings save` : Save current key bindings.
@@ -53,6 +115,7 @@ Type `/ruil` or `/ruilhenn` to access the addon.
 - `/ruil clicks status` : Show read-only differences for the last attempted restore.
 - `/ruil talents save` : Save talent builds for the current spec.
 - `/ruil talents load` : Import saved talent builds.
+- `/ruil talents status` : Inspect client talent readiness and the last imported configuration without changing them.
 
 ## Why use Ruilhenn?
 

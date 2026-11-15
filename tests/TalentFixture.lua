@@ -33,6 +33,11 @@ return function(T, fixture, locale)
     env.C_ClassTalents.ImportLoadout = function(...)
         local ok, err = import(...)
         if s.importError then return false, s.importError end
+        if ok and s.stageOnImport then
+            local _, _, _, text = ...
+            s.stagedTalents = true
+            s.activeStagedExport = s.importScratchExport or text
+        end
         return ok, err
     end
     function s:encode(options)
@@ -76,6 +81,26 @@ return function(T, fixture, locale)
         env.RuilhennDB.talents = { DRUID = { [1] = {
             { name = "Raid", importString = text or self:encode(), usesSharedActionBars = false },
         } } }
+    end
+    function s:completeTalentCreation(name, id, populated)
+        local info = { name = name, ID = id, type = env.Enum.TraitConfigType.Combat,
+            treeIDs = { 9000 }, populated = populated ~= false }
+        self.configs[id] = info
+        for i = #self.imports, 1, -1 do
+            if self.imports[i][3] == name then self.exports[id] = self.imports[i][4]; break end
+        end
+        if self.stagedTalents and not self.activeStagedExport then self.activeStagedExport = self.exports[id] end
+        self.configIDs[self.specID] = self.configIDs[self.specID] or {}
+        table.insert(self.configIDs[self.specID], id)
+        self:fire("TRAIT_CONFIG_CREATED", info)
+    end
+    s.exports[10] = s:encode()
+    local generate = env.C_Traits.GenerateImportString
+    env.C_Traits.GenerateImportString = function(id)
+        if id == env.C_ClassTalents.GetActiveConfigID() and s.stagedTalents and s.activeStagedExport then
+            return s.activeStagedExport
+        end
+        return generate(id)
     end
     load("TalentImport.lua")
     load("TalentManager.lua")

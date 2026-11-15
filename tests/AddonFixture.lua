@@ -3,7 +3,9 @@ return function(T, locale)
     local s = {
         frames = {}, output = {}, slots = {}, macros = {}, spells = {}, items = {},
         created = {}, edited = {}, placements = {}, pickups = {}, imports = {},
-        configs = {}, exports = {}, configIDs = {}, bindingRows = {}, assignments = {},
+        configs = {}, exports = {}, configIDs = {}, bindingRows = {}, bindingSets = { [1] = {}, [2] = {} },
+        commandContexts = {},
+        currentSet = 2, assignments = {},
         savedBindings = {}, requests = {}, class = "DRUID", spec = 1, specID = 102,
         player = "TestPlayer", fps = 60, combat = false, timers = {},
         clickProfile = {}, clickWrites = {}, unbindable = {}, missingClickSpells = {},
@@ -15,7 +17,7 @@ return function(T, locale)
         SpellBookSpellBank = { Player = 0 },
     }
     env.C_SpellBook = { IsSpellInSpellBook = function(id, bank, overrides)
-        assert(bank == env.Enum.SpellBookSpellBank.Player and overrides == false)
+        assert(bank == env.Enum.SpellBookSpellBank.Player and type(overrides) == "boolean")
         return not s.missingClickSpells[id]
     end }
     env.C_ClickBindings = {
@@ -43,7 +45,20 @@ return function(T, locale)
     env.GetBuildInfo = function() return "12.1.5", "70783", "Nov 4 2026", 120105 end
     env.debugprofilestop = function() return 10 end
     env.UnitName = function() return s.player end
+    env.UnitFullName = function() return s.player, "TestRealm" end
+    env.GetRealmName = function() return "TestRealm" end
+    env.time = function() return 1794528000 end
+    env.date = os.date
     env.UnitClass = function() return "LocalizedClass", s.class end
+    env.C_ClassColor = { GetClassColor = function(class)
+        local colors = {
+            DRUID = { r = 1, g = 0.49, b = 0.04 },
+            PALADIN = { r = 0.96, g = 0.55, b = 0.73 },
+            PRIEST = { r = 1, g = 1, b = 1 },
+            DEMONHUNTER = { r = 0.64, g = 0.19, b = 0.79 },
+        }
+        return colors[class]
+    end }
     -- Deprecated global wrappers are deliberately absent in every fixture.
     env.C_SpecializationInfo = {
         GetSpecialization = function() return s.spec end,
@@ -170,6 +185,9 @@ return function(T, locale)
         return index
     end
     env.C_ClassTalents = {
+        GetActiveConfigID = function() return 10 end,
+        CanCreateNewConfig = function() return not s.notReady end,
+        IsConfigPopulated = function(id) return s.configs[id] and s.configs[id].populated ~= false end,
         GetConfigIDsBySpecID = function(specID) return s.configIDs[specID] or {} end,
         HasUnspentTalentPoints = function() return s.unspent end,
         HasUnspentHeroTalentPoints = function() return s.unspentHero end,
@@ -188,17 +206,97 @@ return function(T, locale)
         end,
     }
     env.C_Traits = {
+        ConfigHasStagedChanges = function(id)
+            if s.stagedConfigs and s.stagedConfigs[id] ~= nil then return s.stagedConfigs[id] end
+            return id == env.C_ClassTalents.GetActiveConfigID() and not not s.stagedTalents
+        end,
+        RollbackConfig = function(id)
+            s.rollbacks = s.rollbacks or {}
+            table.insert(s.rollbacks, id)
+            if s.rejectRollback then return false end
+            s.stagedTalents = false
+            return true
+        end,
         GetConfigInfo = function(id) return s.configs[id] end,
         GenerateImportString = function(id) return s.exports[id] end,
     }
-    env.GetCurrentBindingSet = function() return 2 end
-    env.GetNumBindings = function() return #s.bindingRows end
-    env.GetBinding = function(i) return unpack(s.bindingRows[i], 1, 4) end
-    env.SetBinding = function(key, command)
-        table.insert(s.assignments, { key, command })
+    env.GetCurrentBindingSet = function() return s.currentSet end
+    env.GetNumBindings = function()
+        if s.getNumBindingsFailure then error("GetNumBindings rejected") end
+        return #s.bindingRows
+    end
+    env.GetBinding = function(i)
+        if s.bindingReadFailure and (not s.bindingReadFailureSet or s.loadedSet == s.bindingReadFailureSet) then
+            error("GetBinding rejected")
+        end
+        return unpack(s.bindingRows[i])
+    end
+    env.C_KeyBindings = {
+        GetBindingContextForAction = function(action)
+            if s.bindingContextReadFailure then error("GetBindingContextForAction rejected") end
+            return s.commandContexts[action]
+        end,
+    }
+    local function copyRows(rows)
+        local copy = {}
+        for _, row in ipairs(rows or {}) do
+            local nextRow = {}
+            for key, value in pairs(row) do nextRow[key] = value end
+            copy[#copy + 1] = nextRow
+        end
+        return copy
+    end
+    env.LoadBindings = function(set)
+        if s.loadBindingFailure or s.loadBindingFailureSet == set then error("LoadBindings rejected") end
+        s.loadedSet = set
+        s.bindingRows = copyRows(s.bindingSets[set])
+    end
+    env.SetBinding = function(key, command, context)
+        table.insert(s.assignments, { key, command, context })
+        if s.rejectBindingKey == key then return false end
+        local map = {}
+        for _, row in ipairs(s.bindingRows) do
+            local rowContext = s.commandContexts[row[1]]
+            for index = 3, #row do
+                local bindingKey = row[index]
+                local identity = tostring(rowContext == nil and "<nil>" or rowContext) .. "\001" .. tostring(bindingKey)
+                local target = tostring(context == nil and "<nil>" or context) .. "\001" .. tostring(key)
+                if bindingKey and identity ~= target then
+                    map[identity] = { key = bindingKey, command = row[1], context = rowContext }
+                end
+            end
+        end
+        if command then
+            local identity = tostring(context == nil and "<nil>" or context) .. "\001" .. tostring(key)
+            map[identity] = { key = key, command = command, context = context }
+        end
+        local grouped = {}
+        for _, assignment in pairs(map) do
+            local identity = assignment.command .. "\001" .. tostring(assignment.context == nil and "<nil>" or assignment.context)
+            grouped[identity] = grouped[identity] or { command = assignment.command, keys = {} }
+            table.insert(grouped[identity].keys, assignment.key)
+        end
+        local rows = {}
+        for _, group in pairs(grouped) do
+            table.sort(group.keys)
+            local row = { group.command, "FIXTURE" }
+            for _, bindKey in ipairs(group.keys) do row[#row + 1] = bindKey end
+            rows[#rows + 1] = row
+        end
+        table.sort(rows, function(a, b)
+            if a[1] ~= b[1] then return a[1] < b[1] end
+            local aContext, bContext = s.commandContexts[a[1]], s.commandContexts[b[1]]
+            return tostring(aContext) < tostring(bContext)
+        end)
+        s.bindingRows = rows
         return true
     end
-    env.SaveBindings = function(set) table.insert(s.savedBindings, set) end
+    env.SaveBindings = function(set)
+        if s.saveBindingFailure then error("SaveBindings rejected") end
+        table.insert(s.savedBindings, set)
+        s.bindingSets[set] = copyRows(s.bindingRows)
+        s.currentSet = set
+    end
 
     local ns = {}
     local function load(path) return T.load(path, env, ns) end

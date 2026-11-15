@@ -26,6 +26,7 @@ T.test("Main: TOC load order and ADDON_LOADED initialize only this addon", funct
     T.equal(#s.output, 0)
     event("ADDON_LOADED", "Ruilhenn")
     T.equal(ns.Config.debugMode, true)
+    T.equal(#s.output, 2, "debug-enabled startup should print only the two user-facing greetings")
     assert(type(env.SlashCmdList.RUILHENN) == "function")
     for _, command in ipairs({ "bars", "bindings", "clicks", "macro", "talents", "debug", "help" }) do
         assert(type(env.RuilhennFrame.command[command]) == "function", "missing command " .. command)
@@ -80,10 +81,15 @@ T.test("Main: debug status is read-only and toggles persist for this player", fu
     T.equal(env.RuilhennDB.playerSettings.TestPlayer.debugMode, false)
 end)
 
-T.test("Main: unknown and empty commands show deterministic help", function()
-    local env, _, s, event = boot()
+T.test("Main: empty commands open the browser and unknown commands show help", function()
+    local env, ns, s, event = boot()
     event("ADDON_LOADED", "Ruilhenn")
-    for _, command in ipairs({ "", " \t", "not-a-command" }) do
+    local toggles = 0
+    ns.TemplateBrowser.Toggle = function() toggles = toggles + 1 end
+    env.SlashCmdList.RUILHENN("")
+    env.SlashCmdList.RUILHENN(" \t")
+    T.equal(toggles, 2)
+    for _, command in ipairs({ "not-a-command" }) do
         s.output = {}
         env.SlashCmdList.RUILHENN(command)
         T.contains(s.output[1], "Usage: /ruil")

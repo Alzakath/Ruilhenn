@@ -5,7 +5,9 @@ T.test("#13: import preserves argument order and decoded class/spec/hero selecti
     local _, ns, s = talentFixture(T, fixture)
     local text = s:encode()
     s:backup(text)
+    s.configIDs[102] = {}
     ns.TalentManager:Load()
+    s:completeTalentCreation("Raid", 20)
     T.equal(#s.imports, 1)
     local call = s.imports[1]
     T.equal(call[1], 10)
@@ -32,6 +34,7 @@ T.test("#13: exported strings round-trip through saved variables into import ent
     s.exports[10] = text
     ns.TalentManager:Save()
     T.equal(env.RuilhennDB.talents.DRUID[1][1].importString, text)
+    s.configIDs[102] = {}
     ns.TalentManager:Load()
     T.equal(#s.imports, 1)
     T.equal(s.imports[1][2][4].selectionEntryID, 402)
@@ -107,6 +110,7 @@ T.test("#13: preserve API rejection details and do not change shared-bar setting
     local _, ns, s = talentFixture(T, fixture)
     s.importError = "Requires a rest area"
     s:backup()
+    s.configIDs[102] = {}
     ns.TalentManager:Load()
     T.contains(s.output[1], "Requires a rest area")
     T.equal(#s.flags, 0)
@@ -116,6 +120,7 @@ T.test("#13: allow Blizzard's zero-hash third-party format", function()
     local _, ns, s = talentFixture(T, fixture)
     local zero = {}; for i = 1, 16 do zero[i] = 0 end
     s:backup(s:encode({ hash = zero }))
+    s.configIDs[102] = {}
     ns.TalentManager:Load()
     T.equal(#s.imports, 1)
 end)

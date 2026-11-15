@@ -15,10 +15,15 @@ def artifact_files(root):
     for before, after in [("ItemData.lua", "MacroManager.lua"), ("ItemData.lua", "ActionBarsManager.lua"),
                           ("TalentImport.lua", "TalentManager.lua"), ("Validation.lua", "Main.lua"),
                           ("ClickCastingManager.lua", "Main.lua"),
+                          ("TalentManager.lua", "TemplateStore.lua"),
+                          ("TemplateStore.lua", "TemplateBrowser.lua"), ("TemplateBrowser.lua", "Main.lua"),
                           ("l10n/enUS.lua", "l10n/frFR.lua"), ("l10n/frFR.lua", "MacroManager.lua")]:
         assert scripts.index(before) < scripts.index(after), f"{before} must load before {after}"
     assert any(line.startswith("## SavedVariables:") and "RuilhennDB" in line for line in lines)
-    paths = ["Ruilhenn.toc", *scripts, "icon.tga", "Readme.md", "CHANGELOG.md"]
+    assert "## OptionalDeps: EllesmereUI" in lines, "optional EUI load order missing"
+    # The in-game archive is runtime-only. Docs, tests, tooling and release
+    # notes belong in the repository/release metadata, not the addon folder.
+    paths = ["Ruilhenn.toc", *scripts, "icon.tga"]
     for relative in paths:
         parts = PurePosixPath(relative).parts
         assert not relative.startswith("/") and ".." not in parts, f"unsafe artifact path: {relative}"

@@ -134,6 +134,7 @@ function Manager:Save()
     RuilhennDB.clickCasting = RuilhennDB.clickCasting or {}
     RuilhennDB.clickCasting[class] = RuilhennDB.clickCasting[class] or {}
     RuilhennDB.clickCasting[class][specID] = { version = VERSION, bindings = rows }
+    if ns.TemplateStore then ns.TemplateStore:Record("clicks") end
     ns.Log:Message(L.CLICKS_SAVED:format(#rows))
     return true
 end

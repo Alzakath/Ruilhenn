@@ -83,7 +83,6 @@ function MacroManager:WriteMacro(macro, itemNames)
             if not ok then ns.Log:Debug(tostring(result)) end
             return false
         end
-        ns.Log:Debug(ns.L["MACRO_CREATED"]:format(macro.name))
     else
         local ok, result = pcall(EditMacro, macroIndex, macro.name, macro.icon, localizedBody)
         if not ok or result ~= macroIndex then
@@ -91,7 +90,6 @@ function MacroManager:WriteMacro(macro, itemNames)
             if not ok then ns.Log:Debug(tostring(result)) end
             return false
         end
-        ns.Log:Debug(ns.L["MACRO_UPDATED"]:format(macro.name))
     end
     return true
 end

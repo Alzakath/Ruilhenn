@@ -1,0 +1,108 @@
+<div id="ruilhenn-hierarchy-preview" aria-label="Ruilhenn hierarchy proposal">
+  <style>
+    #ruilhenn-hierarchy-preview{--ru-bg:#111415;--ru-panel:#181c1e;--ru-line:#333a3d;--ru-primary:#f0f2f1;--ru-body:#c5cdcf;--ru-muted:#99a5a8;--ru-accent:#40d6be;font:400 14px/1.45 "Segoe UI",sans-serif;color:var(--ru-primary);background:var(--ru-bg);border:1px solid var(--ru-line);border-radius:4px;overflow:hidden;color-scheme:dark}
+    #ruilhenn-hierarchy-preview *{box-sizing:border-box}
+    #ruilhenn-hierarchy-preview button{font:inherit;cursor:pointer}
+    #ruilhenn-hierarchy-preview .titlebar{padding:12px 20px;border-bottom:1px solid var(--ru-line);font-size:18px;font-weight:500}
+    #ruilhenn-hierarchy-preview .shell{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:640px}
+    #ruilhenn-hierarchy-preview aside{padding:26px 18px;background:var(--ru-panel);border-right:1px solid var(--ru-line)}
+    #ruilhenn-hierarchy-preview .eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ru-muted)}
+    #ruilhenn-hierarchy-preview .character{font-size:22px;font-weight:500;margin:6px 0 1px}
+    #ruilhenn-hierarchy-preview .secondary{color:var(--ru-body)}
+    #ruilhenn-hierarchy-preview .muted{color:var(--ru-muted);font-size:12px}
+    #ruilhenn-hierarchy-preview .active-label{margin-top:6px;color:var(--ru-body);font-size:12px}
+    #ruilhenn-hierarchy-preview nav{display:grid;gap:8px;margin-top:46px}
+    #ruilhenn-hierarchy-preview nav button{text-align:left;padding:11px 14px;background:transparent;border:1px solid transparent;border-radius:2px;color:var(--ru-body)}
+    #ruilhenn-hierarchy-preview nav button[aria-current="page"]{border-left:3px solid var(--ru-accent);background:#202728;color:var(--ru-accent);font-weight:500}
+    #ruilhenn-hierarchy-preview nav button:disabled{cursor:default}
+    #ruilhenn-hierarchy-preview main{padding:20px 24px;display:flex;flex-direction:column;min-width:0}
+    #ruilhenn-hierarchy-preview .specs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;color:var(--ru-muted);margin-bottom:28px}
+    #ruilhenn-hierarchy-preview .specs span{text-align:center;padding:9px 3px;border-bottom:2px solid var(--ru-line)}
+    #ruilhenn-hierarchy-preview .specs .selected{border-color:var(--ru-accent);color:var(--ru-primary);font-weight:500}
+    #ruilhenn-hierarchy-preview .specs small{font-size:11px;color:var(--ru-body);font-weight:400}
+    #ruilhenn-hierarchy-preview .heading{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;min-height:104px}
+    #ruilhenn-hierarchy-preview h2{font-size:26px;line-height:1.2;font-weight:500;margin:0 0 7px}
+    #ruilhenn-hierarchy-preview .source{text-align:left;min-width:196px;border-left:1px solid var(--ru-line);padding-left:16px}
+    #ruilhenn-hierarchy-preview .source-name{font-weight:500;margin:4px 0}
+    #ruilhenn-hierarchy-preview .summary{margin:13px 0 16px;color:var(--ru-body)}
+    #ruilhenn-hierarchy-preview .summary strong{font-weight:500;color:var(--ru-primary)}
+    #ruilhenn-hierarchy-preview .list{display:grid;gap:5px}
+    #ruilhenn-hierarchy-preview .overview-row{display:grid;grid-template-columns:minmax(0,1fr) auto 16px;align-items:center;gap:16px;text-align:left;padding:15px;background:var(--ru-panel);border:1px solid var(--ru-line);color:var(--ru-primary);border-radius:2px;width:100%}
+    #ruilhenn-hierarchy-preview .row-name{font-size:17px;font-weight:500}
+    #ruilhenn-hierarchy-preview .provenance{margin-top:5px;color:var(--ru-muted);font-size:12px;font-weight:400}
+    #ruilhenn-hierarchy-preview .count{color:var(--ru-body);font-size:13px}
+    #ruilhenn-hierarchy-preview .chevron{color:var(--ru-muted);font-size:22px}
+    #ruilhenn-hierarchy-preview .talent-list{position:relative;padding-right:14px}
+    #ruilhenn-hierarchy-preview .talent-list:after{content:"";position:absolute;right:0;top:2px;bottom:2px;width:3px;background:var(--ru-line);border-radius:2px}
+    #ruilhenn-hierarchy-preview .talent-list:before{content:"";position:absolute;right:0;top:2px;height:126px;width:3px;background:var(--ru-body);border-radius:2px;z-index:1}
+    #ruilhenn-hierarchy-preview .talent-row{display:flex;justify-content:space-between;gap:14px;align-items:center;text-align:left;width:100%;padding:14px 16px;min-height:57px;border:1px solid var(--ru-line);border-radius:2px;background:var(--ru-panel);color:var(--ru-primary)}
+    #ruilhenn-hierarchy-preview .talent-row[aria-pressed="true"]{border-left:3px solid var(--ru-accent)}
+    #ruilhenn-hierarchy-preview .guidance{margin:18px 0;color:var(--ru-body);font-size:13px}
+    #ruilhenn-hierarchy-preview .guidance .muted{margin-top:6px}
+    #ruilhenn-hierarchy-preview .footer{display:flex;gap:10px;align-items:center;margin-top:auto;padding-top:26px;flex-wrap:wrap}
+    #ruilhenn-hierarchy-preview .action{background:transparent;border:1px solid #596468;color:var(--ru-primary);border-radius:2px;padding:9px 14px;min-height:38px;white-space:normal}
+    #ruilhenn-hierarchy-preview .action.primary{margin-left:auto;border-color:var(--ru-accent);color:var(--ru-accent)}
+    #ruilhenn-hierarchy-preview .action:disabled{cursor:default}
+    #ruilhenn-hierarchy-preview [hidden]{display:none!important}
+    @media(max-width:700px){#ruilhenn-hierarchy-preview .shell{grid-template-columns:1fr}#ruilhenn-hierarchy-preview aside{border-right:0;border-bottom:1px solid var(--ru-line);padding:16px}#ruilhenn-hierarchy-preview nav{margin-top:16px;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}#ruilhenn-hierarchy-preview main{padding:18px 14px}#ruilhenn-hierarchy-preview .heading{flex-direction:column;min-height:auto;gap:18px}#ruilhenn-hierarchy-preview .source{margin-bottom:8px}#ruilhenn-hierarchy-preview .overview-row{gap:8px}#ruilhenn-hierarchy-preview .talent-row{flex-wrap:wrap}#ruilhenn-hierarchy-preview .row-name{font-size:16px}#ruilhenn-hierarchy-preview .footer{margin-top:20px}}
+  </style>
+  <div class="titlebar">Ruilhenn</div>
+  <div class="shell">
+    <aside>
+      <div class="eyebrow">Current character</div>
+      <div class="character">Gravarn</div>
+      <div class="muted">KirinTor</div>
+      <div class="secondary" style="margin-top:12px">Paladin · Protection</div>
+      <div class="active-label">Active specialization</div>
+      <nav aria-label="Category preview">
+        <button type="button" data-screen="overview" aria-current="page">Overview</button>
+        <button type="button" data-screen="talents">Talents</button>
+        <button type="button" disabled>Action bars</button>
+        <button type="button" disabled>Key bindings</button>
+        <button type="button" disabled>Click casting</button>
+      </nav>
+    </aside>
+    <main>
+      <div class="specs" aria-label="Selected template specialization"><span>Holy</span><span class="selected">Protection <small>· Active</small></span><span>Retribution</span></div>
+      <section data-view="overview" aria-label="Overview preview">
+        <div class="heading"><div><h2>Template overview</h2><div class="secondary">Paladin / Protection</div></div></div>
+        <div class="summary"><strong>4 of 4</strong> categories saved</div>
+        <div class="list">
+          <button type="button" class="overview-row" data-open-talents><span><span class="row-name">Talents</span><span class="provenance" style="display:block">Zandrama — KirinTor · Saved 13 Nov, 01:02</span></span><span class="count">5 loadouts</span><span class="chevron">›</span></button>
+          <div class="overview-row"><div><div class="row-name">Action bars</div><div class="provenance">Zandrama — KirinTor · Saved 13 Nov, 01:02</div></div><span class="count">56 placements</span><span class="chevron">›</span></div>
+          <div class="overview-row"><div><div class="row-name">Key bindings</div><div class="provenance">Zandrama — KirinTor · Saved 13 Nov, 01:02</div></div><span class="count">210 actions</span><span class="chevron">›</span></div>
+          <div class="overview-row"><div><div class="row-name">Click casting</div><div class="provenance">Zandrama — KirinTor · Saved 13 Nov, 01:02</div></div><span class="count">10 bindings</span><span class="chevron">›</span></div>
+        </div>
+      </section>
+      <section data-view="talents" aria-label="Talents preview" hidden>
+        <div class="heading"><div><h2>Talents</h2><div class="secondary">Paladin / Protection</div></div><div class="source"><div class="eyebrow">Template source</div><div class="source-name">Zandrama — KirinTor</div><div class="muted">Saved 13 Nov 2026 · 01:02</div></div></div>
+        <div class="summary"><strong>5 saved loadouts</strong> · All already on this character</div>
+        <div class="list talent-list" aria-label="Saved loadouts">
+          <button type="button" class="talent-row" aria-pressed="false"><span class="row-name">mm+ Lightsmith dps</span><span class="muted">Already present</span></button>
+          <button type="button" class="talent-row" aria-pressed="false"><span class="row-name">test dps</span><span class="muted">Already present</span></button>
+          <button type="button" class="talent-row" aria-pressed="false"><span class="row-name">mm+ Templar</span><span class="muted">Already present</span></button>
+          <button type="button" class="talent-row" aria-pressed="false"><span class="row-name">mm+ LightSmith</span><span class="muted">Already present</span></button>
+          <button type="button" class="talent-row" aria-pressed="false"><span class="row-name">Raid LightSmith</span><span class="muted">Already present</span></button>
+        </div>
+        <div class="guidance"><div>Imports missing loadouts without activating them. Existing names stay unchanged.</div><div class="muted">Before importing: resolve pending talent edits, close Blizzard’s talent window and spend available points.</div><div class="muted" data-selection aria-live="polite" style="margin-top:10px">Select a loadout to inspect or copy its export.</div></div>
+      </section>
+      <div class="footer"><button class="action" type="button" data-talent-action hidden disabled>Save current talents…</button><button class="action" type="button" data-refresh>Refresh preview</button><button class="action primary" type="button" data-talent-action hidden disabled>Load talents…</button></div>
+    </main>
+  </div>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('ruilhenn-hierarchy-preview');
+  function show(screen) {
+    root.querySelectorAll('[data-view]').forEach(el => el.hidden = el.dataset.view !== screen);
+    root.querySelectorAll('[data-screen]').forEach(el => { if(el.dataset.screen === screen) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current'); });
+    root.querySelectorAll('[data-talent-action]').forEach(el => el.hidden = screen !== 'talents');
+  }
+  root.querySelectorAll('[data-screen]').forEach(el => el.addEventListener('click', () => show(el.dataset.screen)));
+  root.querySelector('[data-open-talents]').addEventListener('click', () => show('talents'));
+  const selection = root.querySelector('[data-selection]');
+  function reset() { root.querySelectorAll('.talent-row').forEach(el => el.setAttribute('aria-pressed','false')); selection.textContent = 'Select a loadout to inspect or copy its export.'; }
+  root.querySelectorAll('.talent-row').forEach(el => el.addEventListener('click', () => { reset(); el.setAttribute('aria-pressed','true'); selection.textContent = 'Selected: ' + el.querySelector('.row-name').textContent + ' · Already present'; }));
+  root.querySelector('[data-refresh]').addEventListener('click', reset);
+})();
+</script>

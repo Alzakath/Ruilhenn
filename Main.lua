@@ -5,7 +5,6 @@ local _, ns = ...
 local SlashCmdList = SlashCmdList
 local CreateFrame = CreateFrame
 local UnitClass = UnitClass
-local debugprofilestop = debugprofilestop
 
 local Ruilhenn = CreateFrame("Frame", "RuilhennFrame")
 
@@ -40,6 +39,7 @@ function Ruilhenn:Command(msg)
 
     local lmsg = msg:lower()
     local cmd, args = ns.Utils:UnpackFirst(ns.Utils:SplitWhitespace(lmsg))
+    if not cmd then ns.TemplateBrowser:Toggle(); return end
 
     local func = self.command[cmd]
 
@@ -85,10 +85,8 @@ function Ruilhenn:OnEvent(event, ...)
 end
 
 function Ruilhenn:RegisterCommands()
-    ns.Log:Debug("RegisterCommands => " .. ns.Utils:DumpTable(ns.Commands))
     for cmd, func in pairs(ns.Commands) do
         self.command[cmd] = func
-        ns.Log:Debug("Registered command: " .. cmd)
     end
 end
 
@@ -97,9 +95,7 @@ function Ruilhenn:ADDON_LOADED(event, addon)
     ns.Config:LoadSavedVariables()
     self:PrintGreetings()
     self:RegisterCommands()
-
-    local endTime = debugprofilestop()
-    ns.Log:Debug(ns.L["LOADED_TIMER"]:format(endTime - ns.startTime))
+    ns.TemplateBrowser:Initialize()
 end
 
 Ruilhenn:RegisterEvent("ADDON_LOADED")

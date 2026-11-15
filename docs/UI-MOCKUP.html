@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Ruilhenn — EllesmereUI-style template browser</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101114;color:#ded9cb;font:15px system-ui,sans-serif;padding:40px}main{max-width:1100px;margin:auto}.note{color:#9faaa9;margin-bottom:22px}.window{border:2px solid #796341;border-radius:8px;background:#20201f;box-shadow:0 16px 70px #0008;overflow:hidden}header{background:#302b23;border-bottom:1px solid #635135;padding:16px 22px;display:flex;justify-content:space-between;align-items:center}h1{font:24px Georgia,serif;color:#e4c47d;margin:0}button{font:inherit;color:#e8d7aa;background:#41392c;border:1px solid #8b7347;border-radius:4px;padding:9px 18px;cursor:pointer}button:focus-visible{outline:2px solid #ffd680;outline-offset:3px}button[disabled]{opacity:.4;cursor:default}.layout{display:grid;grid-template-columns:235px 1fr;min-height:570px}aside{background:#191a19;padding:22px 14px;border-right:1px solid #504736}.eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#afa28b}.character{padding:12px 10px 25px}.character strong{display:block;font-size:20px;color:#edb4cc;margin:7px 0}.muted{color:#a7aaa5;font-size:13px}.tab{display:block;width:100%;text-align:left;margin:6px 0;border-color:transparent;background:transparent;color:#bdbbb3}.tab.active{background:#393225;border-color:#806b43;color:#f0d394}.content{padding:25px 28px}h2{font:23px Georgia,serif;margin:5px 0 10px;color:#ead6a3}.summary{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-bottom:23px;border-bottom:1px solid #484337}.actions{text-align:right;min-width:170px}.cards{display:grid;gap:12px;margin:20px 0}.card{border:1px solid #504b3e;padding:16px;border-radius:5px;background:#252622;display:flex;justify-content:space-between;align-items:center;gap:18px}.card.selected{border-color:#b39552;background:#302d24}.card strong{display:block;margin-bottom:6px}.badge{color:#b6d6a2;font-size:12px}.badge.warning{color:#e3ba73}.details{border-top:1px solid #484337;padding-top:16px;line-height:1.7}.footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid #484337}.primary{background:#65502c;border-color:#bf9e59}.scope{margin-top:26px;line-height:1.6;color:#aaa}.status{color:#b6d6a2;min-height:24px}a{color:#e4c47d}@media(max-width:800px){body{padding:12px}.layout{grid-template-columns:180px 1fr}.summary,.footer{align-items:start;flex-direction:column}.content{padding:18px}}
+</style>
+<style>
+:root{--accent:#0cd29d}body{background:#101416;color:#dedfe2}.window{background:#1c2024;border:1px solid #475052;border-radius:3px}header{background:#14191c;border-bottom:1px solid #3a4246}h1,h2{font-family:system-ui,sans-serif;color:#f0f2f3}h1{font-size:21px;font-weight:600}h2{font-size:22px;font-weight:500}aside{background:#171c1f;border-color:#353d40}.character strong{color:#ff7d0a}.eyebrow{color:#8f9d9f}.tab{border-radius:2px;color:#adb6bb}.tab.active{background:#22352f;border-color:transparent;border-left:3px solid var(--accent);color:var(--accent)}button{border-radius:2px;background:#2a3034;border:1px solid #4a5357;color:#e4e9eb}button:hover{background:#394246}button:focus-visible{outline-color:var(--accent)}.card{border-radius:2px;background:#23292d;border-color:#394247}.card.selected{background:#24312e;border-color:#437769}.badge{color:var(--accent)}.primary{background:#1d493b;border-color:#338c70;color:#bfffe9}.summary,.footer,.details{border-color:#394247}.muted{color:#9eaaaf}.status{color:var(--accent)}a{color:var(--accent)}.source{display:flex;gap:10px;align-items:center;margin:12px 0 20px;flex-wrap:wrap}.source button{font-size:13px}.source .chosen{border-color:var(--accent);color:var(--accent)}
+</style>
+<main>
+<p class="note">Earlier design artifact — superseded by Ruilhenn-UI-Handoff.md and the accepted PNG where they differ. Illustrative data only.</p>
+<div class="window">
+<header><h1>Ruilhenn</h1><span class="muted">Character configuration &nbsp; ×</span></header>
+<div class="layout">
+<aside>
+<div class="character"><div class="eyebrow">Current character</div><strong>Leafling — Realm</strong><div>Druid · Guardian</div><div class="muted">Level 80 · destination</div></div>
+<div class="eyebrow">Shared templates</div>
+<button class="tab active" onclick="show('Guardian template · source: Oakheart — Realm. Available to Guardian druids.')">Druid / Guardian</button>
+<button class="tab" onclick="show('Feral template · source: Wildclaw — Realm. Browse freely; switch to Feral before loading.')">Druid / Feral</button>
+<hr style="border:0;border-top:1px solid #394247;margin:20px 0">
+<div class="eyebrow">Saved configuration</div>
+<button class="tab active" onclick="selectTab(this)">Overview</button>
+<button class="tab" onclick="selectTab(this)">Talents</button>
+<button class="tab" onclick="selectTab(this)">Action bars</button>
+<button class="tab" onclick="selectTab(this)">Key bindings</button>
+<button class="tab" onclick="selectTab(this)">Click casting</button>
+</aside>
+<section class="content">
+<div class="summary"><div><div class="eyebrow">Druid / Guardian · shared template</div><h2 id="heading">Oakheart’s template</h2><div class="muted">Source: Oakheart — Realm · Destination: Leafling — Realm</div></div><div class="actions"><button onclick="show('Preview: save this category from Leafling. A confirmation will explain that this updates the shared template and its source.')">Save as template…</button></div></div>
+<div class="cards">
+<div class="card"><div><strong>Talents · Guardian</strong><span class="muted">3 saved loadouts · source: Oakheart — Realm</span></div><button onclick="inspect('Talents','Three named loadouts would appear here, with individual selection before import.')">Browse</button></div>
+<div class="card"><div><strong>Action bars · Guardian</strong><span class="muted">Source: Oakheart — Realm</span><br><span class="badge">Available for this specialization</span></div><button onclick="inspect('Action bars','Preview spell, item and macro entries by action-bar slot before restoring this layout.')">Inspect</button></div>
+<div class="card"><div><strong>Key bindings</strong><span class="muted">Shared backup · account binding set</span></div><button onclick="inspect('Key bindings','Preview saved actions and both assigned keys. Loading replaces the selected binding set.')">Inspect</button></div>
+<div class="card selected"><div><strong>Click casting · Guardian</strong><span class="muted">10 saved bindings · source: Oakheart — Realm</span><br><span class="badge warning">1 spell not learned on this character</span></div><button onclick="inspect('Click casting','Restore 9 available bindings. One unlearned spell will be skipped; the backup keeps all 10 bindings.')">Inspect</button></div>
+</div>
+<div class="details"><div class="eyebrow" id="selected">Selected: Click casting</div><div id="detail">Restore 9 available bindings. One unlearned spell will be skipped; the backup keeps all 10 bindings.</div><div class="muted">Loading replaces Leafling’s current native click-casting profile.</div></div>
+<div class="footer"><span class="muted">Other classes/specs can be browsed; loading requires a compatible character.</span><button class="primary" onclick="show('Preview only: restore confirmation would open here. No game data has been changed.')">Load selected…</button></div>
+<p class="status" id="status" aria-live="polite"></p>
+</section>
+</div></div>
+<p class="scope">Proposed integration: a Ruilhenn window styled through EllesmereUI.RegisterSkin, using its public shell, panel, button, tab and scrolling primitives. This mock-up approximates a dark EUI look with the default Retail teal accent; the game window would follow the user's EUI theme. Guardian and Feral keep independent shared templates and source characters. Key bindings currently use a single global backup; grouping them with spec templates needs a storage change. Existing backups have unknown source until saved again. Save overwrite and load replacement confirmations name the affected category and destination. Combat disables mutations while allowing browsing. Keyboard and controller access require in-game validation. No EUI assets are copied into this mock-up.</p>
+</main>
+<script>
+function show(text){document.getElementById('status').textContent=text}
+function inspect(category,text){document.getElementById('selected').textContent='Selected: '+category;document.getElementById('detail').textContent=text;show('Previewing '+category+'.')}
+function selectTab(button){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));button.classList.add('active');document.getElementById('heading').textContent=button.textContent;show('Design preview: '+button.textContent+' selected. Detailed category layouts are proposed for the in-game implementation.')}
+</script>
+</html>

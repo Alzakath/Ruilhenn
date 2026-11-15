@@ -34,7 +34,6 @@ function TaskQueue:Process()
     end
     if #self.tasks == 0 then
         self.taskFrame:SetScript("OnUpdate", nil)
-        ns.Log:Debug(ns.L["TASKS_PROCESSED"])
     end
 end
 

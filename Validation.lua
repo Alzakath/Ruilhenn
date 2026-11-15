@@ -6,8 +6,8 @@ local required = {
     "C_SpecializationInfo.GetSpecialization", "C_SpecializationInfo.GetSpecializationInfo",
     "C_ActionBar.GetActionText", "C_Spell.GetSpellName", "C_Spell.PickupSpell",
     "C_Item.GetItemInfo", "C_Item.PickupItem", "C_Item.RequestLoadItemDataByID",
-    "C_Traits.GetConfigInfo", "C_Traits.GetNodeInfo", "C_Traits.GenerateImportString",
-    "C_ClassTalents.RequestNewConfig", "C_ClassTalents.ImportLoadout", "C_Timer.NewTimer",
+    "C_Traits.GetConfigInfo", "C_Traits.GetNodeInfo", "C_Traits.GenerateImportString", "C_Traits.ConfigHasStagedChanges", "C_Traits.RollbackConfig",
+    "C_ClassTalents.CanCreateNewConfig", "C_ClassTalents.IsConfigPopulated", "C_ClassTalents.ImportLoadout", "C_Timer.NewTimer",
     "C_ClickBindings.GetProfileInfo", "C_ClickBindings.SetProfileByInfo", "C_ClickBindings.CanSpellBeClickBound",
     "C_SpellBook.IsSpellInSpellBook",
 }

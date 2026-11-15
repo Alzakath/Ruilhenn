@@ -2,8 +2,9 @@
 ## Title: Ruilhenn
 ## Notes: Save, restore, and manage Action Bars, Key Bindings, and Macros across specializations.
 ## Author: Alzakath
-## Version: 0.4.0
+## Version: 0.5.0
 ## SavedVariables: RuilhennDB
+## OptionalDeps: EllesmereUI
 ## IconTexture: Interface\AddOns\Ruilhenn\icon.tga
 ## X-Wago-ID: EGPXEeG1
 
@@ -27,6 +28,8 @@ BindingsManager.lua
 ClickCastingManager.lua
 TalentImport.lua
 TalentManager.lua
+TemplateStore.lua
+TemplateBrowser.lua
 
 # Templates
 macros/druid.lua

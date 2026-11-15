@@ -1,5 +1,6 @@
 package-as: Ruilhenn
 ignore:
+  - AGENTS.md
   - tests
   - docs
   - tools
@@ -8,3 +9,8 @@ ignore:
   - .gemini
   - .gitignore
   - RETAIL-API-REVIEW.md
+  - Readme.md
+  - CHANGELOG.md
+  - .agents
+  - .aws
+  - .codex
